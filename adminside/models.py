@@ -2,7 +2,7 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 class Branch(models.Model):
-    id=models.IntegerField(primary_key=True)
+    id=models.AutoField(primary_key=True)
     location=models.CharField(max_length=50)
     area=models.CharField(max_length=50)
     manager_id=models.IntegerField(null=False)

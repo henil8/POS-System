@@ -106,32 +106,32 @@ function removeError(input) {
   }
 }
 
-function addBranch() {
-  let location = document.getElementById("location").value.trim();
-  let area = document.getElementById("storeArea").value.trim();
-  let manager = document.getElementById("managerID").value.trim();
-  let phoneNo = document.getElementById("PhoneNo").value.trim();
-  let status = document.getElementById("status").value;
+// function addBranch() {
+//   let location = document.getElementById("location").value.trim();
+//   let area = document.getElementById("storeArea").value.trim();
+//   let manager = document.getElementById("managerID").value.trim();
+//   let phoneNo = document.getElementById("PhoneNo").value.trim();
+//   let status = document.getElementById("status").value;
 
-  let newRow = document.createElement("tr");
-  newRow.innerHTML = `
-        <td>${ID}</td>
-        <td>${location}</td>
-        <td>${area}</td>
-        <td>${manager}</td>
-        <td>${phoneNo}</td>
-        <td>${status}</td>
-        <td class="action-buttons">
-            <button class="update-btn" onclick="updateRow(this)"><i class="fas fa-edit"></i></button>
-            <button class="delete-btn" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
-        </td>
-    `;
+//   let newRow = document.createElement("tr");
+//   newRow.innerHTML = `
+//         <td>${ID}</td>
+//         <td>${location}</td>
+//         <td>${area}</td>
+//         <td>${manager}</td>
+//         <td>${phoneNo}</td>
+//         <td>${status}</td>
+//         <td class="action-buttons">
+//             <button class="update-btn" onclick="updateRow(this)"><i class="fas fa-edit"></i></button>
+//             <button class="delete-btn" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
+//         </td>
+//     `;
 
-  document.getElementById("storeTableBody").appendChild(newRow);
-  ID++;
-  document.getElementById("storeForm").reset();
-  closeForm();
-}
+//   document.getElementById("storeTableBody").appendChild(newRow);
+//   ID++;
+//   document.getElementById("storeForm").reset();
+//   closeForm();
+// }
 
 function clearErrors() {
   document.querySelectorAll(".error-message").forEach((el) => {

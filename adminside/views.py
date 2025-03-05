@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import CustomPasswordChangeForm
-
+from .models import Branch,Inventory,Purchase
 
 def home(request):
     return redirect('adminside:dashboard')
@@ -11,7 +11,27 @@ def render_page(request, template, data=None):
 def dashboard(request):
     return render_page(request, 'adminside/dashboard.html')
 
-def branches(request):   
+
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def branches(request):  
+    # branches=Branch.objects.all().values()
+    # context={
+    #     "branches":branches
+
+    # }
+    if request.method=='POST':
+       location=request.POST.get("location")
+       area=request.POST.get("storeArea")
+       managerID=request.POST.get("managerID")
+       PhoneNo=request.POST.get("PhoneNo")
+       status=request.POST.get("status")
+       Br=Branch(location=location,area=area,manager_id=managerID,phone_no=PhoneNo,status=status)
+       Br.save()
+       redirect('/branches/')
+           
     return render_page(request, 'adminside/branches.html')
 
 def suppliers(request):

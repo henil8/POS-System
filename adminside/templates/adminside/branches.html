@@ -33,7 +33,7 @@
 
   <div class="overlay" id="overlay" onclick="closeForm()"></div>
   <div class="form-popup" id="myForm">
-    <form id="storeForm" class="form-container">
+    <form id="storeForm" method='post' action="/branches/"    class="form-container">
       <h1 class="mb-3">Add Branch</h1>
 
       <div class="form-group">
@@ -112,6 +112,15 @@
         </tr>
       </thead>
       <tbody id="storeTableBody"></tbody>
+      <!-- {% for x in branches %}
+      <tr>
+        <td>{{x.location}}</td>
+        <td>{{x.area}}</td>
+        <td>{{x.managerID}}</td>
+        <td>{{x.PhoneNo}}</td>
+        <td>{{x.status}}</td>
+      </tr>
+       {% endfor %} -->
     </table>
   </div>
 </div>
