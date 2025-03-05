@@ -33,57 +33,36 @@
 
   <div class="overlay" id="overlay" onclick="closeForm()"></div>
   <div class="form-popup" id="myForm">
-    <form id="storeForm" method='post' action="/branches/"    class="form-container">
+    <form method="post"  action="branches/"  id="storeForm" role="form"  class="form-container">
+      {% csrf_token %}
       <h1 class="mb-3">Add Branch</h1>
 
       <div class="form-group">
         <div class="input-group">
           <label for="StoreLocation"><b>Location</b></label>
-          <input
-            type="text"
-            id="location"
-            placeholder="Enter location"
-            required
-          />
+          <input type="text" id="location" name="location" placeholder="Enter location" required/>
         </div>
         <div class="input-group">
           <label for="storeArea">Area</label>
-          <input
-            type="text"
-            name="Null"
-            id="storeArea"
-            placeholder="Enter area name"
-            required
-          />
+          <input type="text" id="storeArea" name="storeArea" placeholder="Enter area name" required />
         </div>
       </div>
 
       <div class="form-group">
         <div class="input-group">
           <label for="storeManager">Manager ID </label>
-          <input
-            type="text"
-            name="Null"
-            id="managerID"
-            placeholder="Manager name"
-            required
-          />
+          <input type="text" id="managerID"  name="managerID" placeholder="Manager name" required/>
         </div>
 
         <div class="input-group">
           <label for="StoreLocation"><b>Phone No.</b></label>
-          <input
-            type="tel"
-            id="PhoneNo"
-            placeholder="Enter Phone No."
-            required
-          />
+          <input type="tel" id="PhoneNo" name="PhoneNo" placeholder="Enter Phone No." required/>
         </div>
       </div>
       <div class="form-group">
         <div class="input-group">
           <label for="storeManager">Status </label>
-          <select id="status">
+          <select id="status" name="status">
             <option value="">Status</option>
           </select>
         </div>
@@ -112,15 +91,7 @@
         </tr>
       </thead>
       <tbody id="storeTableBody"></tbody>
-      <!-- {% for x in branches %}
-      <tr>
-        <td>{{x.location}}</td>
-        <td>{{x.area}}</td>
-        <td>{{x.managerID}}</td>
-        <td>{{x.PhoneNo}}</td>
-        <td>{{x.status}}</td>
-      </tr>
-       {% endfor %} -->
+     
     </table>
   </div>
 </div>

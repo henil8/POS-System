@@ -13,9 +13,7 @@ def dashboard(request):
 
 
 
-from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
 def branches(request):  
     # branches=Branch.objects.all().values()
     # context={

@@ -12,21 +12,21 @@ function toggleSearch() {
 }
 
 // Search function
-document.getElementById("searchInput").addEventListener("keyup", function () {
-  let filter = this.value.toLowerCase();
-  let rows = document.querySelectorAll("#storeTableBody tr");
+// document.getElementById("searchInput").addEventListener("keyup", function () {
+//   let filter = this.value.toLowerCase();
+//   let rows = document.querySelectorAll("#storeTableBody tr");
 
-  rows.forEach(function (row) {
-    let store = row.cells[1].textContent.toLowerCase();
-    let manager = row.cells[2].textContent.toLowerCase();
+//   rows.forEach(function (row) {
+//     let store = row.cells[1].textContent.toLowerCase();
+//     let manager = row.cells[2].textContent.toLowerCase();
 
-    if (store.includes(filter) || manager.includes(filter)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-});
+//     if (store.includes(filter) || manager.includes(filter)) {
+//       row.style.display = "";
+//     } else {
+//       row.style.display = "none";
+//     }
+//   });
+// });
 
 let ID = 1;
 let updateIndex = null; // Stores the row reference for update
