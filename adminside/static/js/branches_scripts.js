@@ -32,16 +32,15 @@ let ID = 1;
 let updateIndex = null; // Stores the row reference for update
 
 document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("storeForm")
-    .addEventListener("submit", function (event) {
+  document.getElementById("storeForm").addEventListener("submit", function (event) {
       event.preventDefault();
       if (validateForm()) {
-        if (updateIndex !== null) {
-          saveUpdatedBranch(); // Update existing row
-        } else {
-          addBranch(); // Add new row
-        }
+        // if (updateIndex !== null) {
+        //   saveUpdatedBranch(); // Update existing row
+        // } else {
+        //   addBranch(); // Add new row
+        // }
+        document.getElementById("storeForm").submit();
       }
     });
 
@@ -53,7 +52,7 @@ function populateStaticDropdowns() {
   let statusDropdown = document.getElementById("status");
   statuss.forEach((status) => {
     let option = document.createElement("option");
-    option.value = status;
+    option.value = status;//1,2,3
     option.textContent = status;
     statusDropdown.appendChild(option);
   });
@@ -106,32 +105,32 @@ function removeError(input) {
   }
 }
 
-// function addBranch() {
-//   let location = document.getElementById("location").value.trim();
-//   let area = document.getElementById("storeArea").value.trim();
-//   let manager = document.getElementById("managerID").value.trim();
-//   let phoneNo = document.getElementById("PhoneNo").value.trim();
-//   let status = document.getElementById("status").value;
+function addBranch() {
+  let location = document.getElementById("location").value.trim();
+  let area = document.getElementById("storeArea").value.trim();
+  let manager = document.getElementById("managerID").value.trim();
+  let phoneNo = document.getElementById("PhoneNo").value.trim();
+  let status = document.getElementById("status").value;
 
-//   let newRow = document.createElement("tr");
-//   newRow.innerHTML = `
-//         <td>${ID}</td>
-//         <td>${location}</td>
-//         <td>${area}</td>
-//         <td>${manager}</td>
-//         <td>${phoneNo}</td>
-//         <td>${status}</td>
-//         <td class="action-buttons">
-//             <button class="update-btn" onclick="updateRow(this)"><i class="fas fa-edit"></i></button>
-//             <button class="delete-btn" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
-//         </td>
-//     `;
+  let newRow = document.createElement("tr");
+  newRow.innerHTML = `
+        <td>${ID}</td>
+        <td>${location}</td>
+        <td>${area}</td>
+        <td>${manager}</td>
+        <td>${phoneNo}</td>
+        <td>${status}</td>
+        <td class="action-buttons">
+            <button class="update-btn" onclick="updateRow(this)"><i class="fas fa-edit"></i></button>
+            <button class="delete-btn" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
+        </td>
+    `;
 
-//   document.getElementById("storeTableBody").appendChild(newRow);
-//   ID++;
-//   document.getElementById("storeForm").reset();
-//   closeForm();
-// }
+  document.getElementById("storeTableBody").appendChild(newRow);
+  ID++;
+  document.getElementById("storeForm").reset();
+  closeForm();
+}
 
 function clearErrors() {
   document.querySelectorAll(".error-message").forEach((el) => {
@@ -153,7 +152,7 @@ function updateRow(button) {
   openForm(true);
 }
 
-function saveUpdatedBranch() {
+function saveUpdatedBranch() {  
   if (updateIndex) {
     let location = document.getElementById("location").value;
     let area = document.getElementById("storeArea").value;

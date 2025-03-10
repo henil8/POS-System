@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from .forms import CustomPasswordChangeForm
 from .models import Branch,Inventory,Purchase
+from django.contrib import messages
+from django.core.validators import RegexValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 def home(request):
     return redirect('adminside:dashboard')
@@ -15,11 +18,12 @@ def dashboard(request):
 
 
 def branches(request):  
-    # branches=Branch.objects.all().values()
-    # context={
-    #     "branches":branches
+    branches=Branch.objects.all()
+    print(branches)
+    context={
+        "branches":branches
 
-    # }
+    }
     if request.method=='POST':
        location=request.POST.get("location")
        area=request.POST.get("storeArea")
@@ -27,10 +31,10 @@ def branches(request):
        PhoneNo=request.POST.get("PhoneNo")
        status=request.POST.get("status")
        Br=Branch(location=location,area=area,manager_id=managerID,phone_no=PhoneNo,status=status)
-       Br.save()
-       redirect('/branches/')
+       Br.save()       
+       redirect('/branches')
            
-    return render_page(request, 'adminside/branches.html')
+    return render_page(request, 'adminside/branches.html',context)
 
 def suppliers(request):
     return render_page(request, 'adminside/suppliers.html')

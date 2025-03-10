@@ -33,10 +33,16 @@
 
   <div class="overlay" id="overlay" onclick="closeForm()"></div>
   <div class="form-popup" id="myForm">
-    <form method="post"  action="branches/"  id="storeForm" role="form"  class="form-container">
+    <form method="post"  action=''  id="storeForm" role="form"  class="form-container">
       {% csrf_token %}
       <h1 class="mb-3">Add Branch</h1>
-
+      {% if messages %}
+      <div>
+        {% for message in messages %}
+          {{message}}
+        {% endfor %}
+      </div>
+      {% endif %}
       <div class="form-group">
         <div class="input-group">
           <label for="StoreLocation"><b>Location</b></label>
@@ -51,14 +57,16 @@
       <div class="form-group">
         <div class="input-group">
           <label for="storeManager">Manager ID </label>
-          <input type="text" id="managerID"  name="managerID" placeholder="Manager name" required/>
+          <input type="number" id="managerID"  name="managerID" placeholder="Manager name" required/>
         </div>
 
         <div class="input-group">
           <label for="StoreLocation"><b>Phone No.</b></label>
           <input type="tel" id="PhoneNo" name="PhoneNo" placeholder="Enter Phone No." required/>
         </div>
+        
       </div>
+      <p id="message"></p>
       <div class="form-group">
         <div class="input-group">
           <label for="storeManager">Status </label>
@@ -90,7 +98,25 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody id="storeTableBody"></tbody>
+      <tbody > 
+        
+         {% for i in branches %}
+         <tr>
+            <td>{{i.id}}</td>
+            <td>{{i.location}}</td>
+            <td>{{i.area}}</td>
+            <td>{{i.manager_id}}</td>
+            <td>{{i.phone_no}}</td>
+            <td>{{i.status}}</td>
+          </tr>
+         {% endfor %}
+         <!-- {% for i in branches %}
+             <p>{{ i.location }} - {{ i.area }}</p>
+         {% empty %}
+           <p>No data found.</p>
+         {% endfor %} -->
+        
+      </tbody>
      
     </table>
   </div>
