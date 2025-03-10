@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CustomPasswordChangeForm
-from api.serializers import TableSerializer
+# from api.serializers import TableSerializer
 from adminside.models import Table
-from rest_framework.decorators import api_view
 from django.db import connection
 
 

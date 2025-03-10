@@ -41,8 +41,7 @@ INSTALLED_APPS = [
      "adminside",
      "staffside",
      "accounts",
-     'rest_framework',
-     "api",
+    
 ]
 
 MIDDLEWARE = [
@@ -81,12 +80,8 @@ WSGI_APPLICATION = 'pos.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pos_system',
-        'USER': 'pos',
-        'PASSWORD': 'pos@2025',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
