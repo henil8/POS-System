@@ -19,7 +19,10 @@ def dashboard(request):
 
 def branches(request):  
     branches=Branch.objects.all()
-    print(branches)
+    if branches:
+     print(branches)
+    else:
+        print("data is in database but not coming")
     context={
         "branches":branches
 
@@ -32,7 +35,7 @@ def branches(request):
        status=request.POST.get("status")
        Br=Branch(location=location,area=area,manager_id=managerID,phone_no=PhoneNo,status=status)
        Br.save()       
-       redirect('/branches')
+       return redirect('/adminside/branches/')
            
     return render_page(request, 'adminside/branches.html',context)
 

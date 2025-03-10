@@ -2,6 +2,7 @@
 <title>Chains</title>
 {% endblock %} {% block css %}
 <link rel="stylesheet" href="{% static 'css/branches_style.css' %}" />
+<link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
 {% endblock %}
 
 <div class="food-items-page">
@@ -100,16 +101,25 @@
       </thead>
       <tbody > 
         
-         {% for i in branches %}
-         <tr>
-            <td>{{i.id}}</td>
-            <td>{{i.location}}</td>
-            <td>{{i.area}}</td>
-            <td>{{i.manager_id}}</td>
-            <td>{{i.phone_no}}</td>
-            <td>{{i.status}}</td>
-          </tr>
-         {% endfor %}
+        {% for branch in data.branches %}
+        <tr>
+            <td>{{ branch.id }}</td>
+            <td>{{ branch.location }}</td>
+            <td>{{ branch.area }}</td>
+            <td>{{ branch.manager_id }}</td>
+            <td>{{ branch.phone_no }}</td>
+            <td>{{ branch.status }}</td>
+            <td class="action-buttons">
+              <button class="update-btn"><i class="fas fa-edit"></i></button>
+              <button class="delete-btn"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No branches found.</td>
+            <p>Branches count: {{ branches|length }}</p>
+        </tr>
+        {% endfor %}
          <!-- {% for i in branches %}
              <p>{{ i.location }} - {{ i.area }}</p>
          {% empty %}
