@@ -86,6 +86,64 @@
     </form>
   </div>
 
+  <!-- Update Form -->
+  <div class="overlay" id="updateOverlay" onclick="closeUpdateForm()"></div>
+<div class="form-popup" id="updateForm">
+    <form method="post" action="{% url 'adminside:update_branch' %}" class="form-container" id="formUpdate">
+        {% csrf_token %}
+        <h1 class="mb-3">Update Branch</h1>
+        
+        <input type="hidden" id="branchID" name="branchID" />
+
+        <div class="form-group">
+          <div>
+            <label>Location</label>
+            <input type="text" id="updateLocation" name="location" required />
+
+            <label>Area</label>
+            <input type="text" id="updateArea" name="storeArea" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div>
+            <label>Manager ID</label>
+            <input type="number" id="updateManagerID" name="managerID" required />
+
+            <label>Phone No.</label>
+            <input type="tel" id="updatePhoneNo" name="PhoneNo" required />
+          </div>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="updateStatus" name="status">
+            <option value="">Select Status</option>
+            <option value="Open">Open</option>
+            <option value="Close">Close</option>
+        </select>
+        </div>
+        <div class="form-buttons">
+            <button type="submit" class="btn">Update</button>
+            <button type="button" class="btn cancel" onclick="closeUpdateForm()">Close</button>
+        </div>
+    </form>
+</div>
+
+<div class="overlay" id="deleteOverlay" onclick="closedeleteForm()"></div>
+<div class="form-popup" id="deleteForm">
+  <form method="post" action="{% url 'adminside:delete_branch' %}" class="form-container" id="FormDelete"  >
+    {% csrf_token %}
+    <h3 align="center">
+      Are you sure you want to delete?
+    </h3>
+    <input type="hidden" id="bID" name="bID" />
+      <div class="form-buttons">
+          <button type="submit" class="btn">Delete</button>
+          <button type="button" class="btn cancel" onclick="closedeleteForm()">Cancel</button>
+      </div>
+  </form>
+</div>
+
   <div class="table-responsive">
     <table class="table stores-detail-table">
       <thead style="border-bottom: 2px solid #333 !important">
@@ -110,9 +168,15 @@
             <td>{{ branch.phone_no }}</td>
             <td>{{ branch.status }}</td>
             <td class="action-buttons">
-              <button class="update-btn"><i class="fas fa-edit"></i></button>
-              <button class="delete-btn"><i class="fas fa-trash"></i></button>
-          </td>
+              <button class="update-btn" onclick="openUpdateForm('{{ branch.id }}', '{{ branch.location }}', '{{ branch.area }}', '{{ branch.manager_id }}', '{{ branch.phone_no }}', '{{ branch.status }}')">
+                  <i class="fas fa-edit"></i>
+              </button>
+          
+               <button class="delete-btn" onclick="sureform('{{ branch.id }}')">
+                
+                <i class="fas fa-trash"></i></button>
+
+            </td>
         </tr>
         {% empty %}
         <tr>

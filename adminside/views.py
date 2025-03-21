@@ -1,14 +1,19 @@
-from django.shortcuts import render, redirect
-from .forms import CustomPasswordChangeForm
-from .models import Branch,Inventory,Purchase
+from django.shortcuts import render, redirect,get_object_or_404
+from .forms import CustomPasswordChangeForm,StaffRegisterForm,InventoryForm
+from .models import Branch,Inventory,Purchase,CustomUser,Categories
+from django.contrib.auth.forms import UserChangeForm,AuthenticationForm
+from django.contrib.auth import login,logout,authenticate
+from django.contrib.auth.models import User
 from django.contrib import messages
-from django.core.validators import RegexValidator
-from phonenumber_field.modelfields import PhoneNumberField
+from django.http import HttpResponse
+
 
 def home(request):
     return redirect('adminside:dashboard')
 
 def render_page(request, template, data=None):
+    if data is None:
+        data={}
     return render(request, "adminside/base.html", {"template": template, "data":data})
 
 def dashboard(request):
@@ -19,10 +24,6 @@ def dashboard(request):
 
 def branches(request):  
     branches=Branch.objects.all()
-    if branches:
-     print(branches)
-    else:
-        print("data is in database but not coming")
     context={
         "branches":branches
 
@@ -36,8 +37,37 @@ def branches(request):
        Br=Branch(location=location,area=area,manager_id=managerID,phone_no=PhoneNo,status=status)
        Br.save()       
        return redirect('/adminside/branches/')
-           
+ 
+    
+
     return render_page(request, 'adminside/branches.html',context)
+
+
+
+def update_branch(request):
+        branch_id = request.POST.get("branchID")
+        branch=Branch.objects.get(id=branch_id)
+
+        if request.method=='POST':
+            branch.location=request.POST.get("location")
+            branch.area=request.POST.get("storeArea")
+            branch.manager_id=request.POST.get("managerID")
+            branch.phone_no=request.POST.get("PhoneNo")
+            branch.status=request.POST.get("status")
+            branch.save()       
+            return redirect('/adminside/branches/')
+
+        return redirect('/adminside/branches/')
+
+def delete_branch(request):
+    
+    if request.method=='POST':
+      branch_id=request.POST.get("bID")
+      print(branch_id)
+      branch=Branch.objects.get(id=branch_id)
+      branch.delete()
+      return redirect('/adminside/branches/')
+    return redirect('/adminside/branches/')
 
 def suppliers(request):
     return render_page(request, 'adminside/suppliers.html')
@@ -46,19 +76,127 @@ def purchase(request):
     return render_page(request, 'adminside/purchase.html')
 
 def categories(request):
-    return render_page(request, 'adminside/categories.html')
+    if request.method=='POST':
+        # cat_id=request.POST.get('ID')
+        name=request.POST.get('name')
+        status=request.POST.get('status')
+        # print(cat_id,name,status)
+        ct=Categories(category_name=name,status=status)
+        ct.save()
+        return redirect('/adminside/categories/')
+    categories=Categories.objects.all()
+    context={
+        "categories":categories
+    }
+
+    return render_page(request, 'adminside/categories.html',context)
+
+def update_category(request):
+    cat_id = request.POST.get("itemID")
+    print(cat_id)
+    category=Categories.objects.get(id=cat_id)
+    if request.method=='POST':
+        # category.category_id=request.POST.get("itemIDDisplay")
+        category.category_name=request.POST.get("name")
+        category.status=request.POST.get("status")
+        category.save()       
+        return redirect('/adminside/categories/')
+
+    return redirect('/adminside/categories/')
+
+def delete_category(request):
+    
+    if request.method=='POST':
+      cat_id=request.POST.get("iID")
+    #   print(branch_id)
+      category=Categories.objects.get(id=cat_id)
+      category.delete()
+      return redirect('/adminside/categories/')
+    return redirect('/adminside/categories/')
+
+
 
 def inventory(request):
-    return render_page(request, 'adminside/inventory.html')
+    form=InventoryForm()
+    if request.method=='POST':
+        form=InventoryForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('/adminside/inventory/')
+        else:
+            messages.error(request,"Invalid Details")
+    
+    inventory=Inventory.objects.all()
+    context={
+        "form":form,
+        "inventory":inventory
+    }
+    return render_page(request, 'adminside/inventory.html',context)
 
-def fooditems(request):
+def update_inventory(request):
+    id=request.POST.get('id')
+    fi=Inventory.objects.get(id=id)
+    
+    form=InventoryForm(instance=fi)
+    if request.method=='POST':
+        form=InventoryForm(request.POST,request.FILES,instance=fi)
+        if form.is_valid():
+            form.save()
+            return redirect('/adminside/inventory/')
+    context={
+        "form":form
+    }
+    return render(request, 'adminside/inventory.html', context)
+
+def get_update_form(request, id):
+    item = Inventory.objects.get(id=id)  # Fetch the specific item
+    form = InventoryForm(instance=item)  # Prefill the form with the item data
+    return HttpResponse(form.as_p()) 
+
+def fooditems(request): 
     return render_page(request, 'adminside/fooditems.html')
 
 def customer(request):
     return render_page(request, 'adminside/customer.html')
 
 def staff(request):
-    return render_page(request, 'adminside/staff.html')
+    form=StaffRegisterForm(initial={
+        'first_name': None,
+        'last_name': None,
+        'email': None,
+        'role': None,
+        'phone_no': None,
+        'username': None,
+        'password1': None,
+        'password2': None
+    })
+    if request.method=='POST':
+        form=StaffRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect ('/adminside/staff/')
+        else:
+            messages.error(request,("Please correct the errors below."))
+            
+    staffs=CustomUser.objects.all() 
+    context={
+        "form":form,
+        "staffs":staffs
+    }
+    return render_page(request, 'adminside/staff.html',context)
+
+def delete_staff(request):
+    if request.method=='POST':
+      staff_id=request.POST.get("staff_id")
+      if not staff_id:  # If no ID is received
+            print("Error: No staff ID received.")
+            return HttpResponse("Staff ID is missing.", status=400)  # Bad Request
+      print(staff_id)
+      staff=CustomUser.objects.get(id=staff_id)
+      staff.delete()
+      return redirect('/adminside/staff/')
+    return redirect('/adminside/staff/')
+
 
 def reports(request):
     sales_data = [
@@ -98,3 +236,34 @@ def logout_view(request):
     ]
     return render_page(request, 'adminside/logout.html',data=sales_data)
 
+def login_view(request):
+    form=AuthenticationForm()
+    if request.method=='POST':
+        
+        form=AuthenticationForm(request,data=request.POST)
+        if form.is_valid():
+           username=form.cleaned_data.get('username')
+           password=form.cleaned_data.get('password')
+           user=authenticate(request,username=username,password=password)
+           if user is not None:
+            
+
+               
+            #    print(f"User: {user.username}, is_staff: {user.is_staff}, is_superuser: {user.is_superuser}")
+                 
+            #    login(request,user)
+              
+               if user.is_staff:
+                   return redirect('adminside:dashboard')
+               else:
+                   return redirect('staffside:pos')
+            
+        
+           else:
+               messages.error(request,"Invalid username or password") 
+               return redirect('adminside:login')
+    context={
+        "form":form
+    }
+
+    return render(request,'adminside/login.html',context)

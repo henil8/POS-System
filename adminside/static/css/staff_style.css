@@ -200,6 +200,10 @@
   /* Enable scrolling inside the form */
 }
 
+.form-popup.show {
+  display: block !important;
+}
+
 .form-container {
   width: 100%;
   padding: 10px;

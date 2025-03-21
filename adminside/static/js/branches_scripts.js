@@ -35,13 +35,22 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("storeForm").addEventListener("submit", function (event) {
       event.preventDefault();
       if (validateForm()) {
-        // if (updateIndex !== null) {
-        //   saveUpdatedBranch(); // Update existing row
-        // } else {
-        //   addBranch(); // Add new row
-        // }
+       
         document.getElementById("storeForm").submit();
       }
+    });
+    document.getElementById("formUpdate").addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (validateUpdateForm()) {
+        document.getElementById("formUpdate").submit();
+      } 
+    });
+
+    document.getElementById("FormDelete").addEventListener("submit", function (event) {
+      
+      
+        document.getElementById("FormDelete").submit();
+      
     });
 
   populateStaticDropdowns();
@@ -50,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function populateStaticDropdowns() {
   let statuss = ["Open", "Close"];
   let statusDropdown = document.getElementById("status");
+  if (statusDropdown.options.length === 1) {
   statuss.forEach((status) => {
     let option = document.createElement("option");
     option.value = status;//1,2,3
@@ -57,6 +67,8 @@ function populateStaticDropdowns() {
     statusDropdown.appendChild(option);
   });
 }
+}
+
 
 function validateForm() {
   let phoneNo = document.getElementById("PhoneNo");
@@ -82,8 +94,39 @@ function validateForm() {
   }
 
   if (!statusValue) {
-    showError(status, "Status is require");
+    showError(status, "Status is required");
     isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateUpdateForm() {
+  let phoneNo = document.getElementById("updatePhoneNo");
+  let status = document.getElementById("updateStatus");
+
+  let phoneNoValue = phoneNo.value.trim();
+  let statusValue = status.value.trim();
+
+  let phoneNoRegex = /^(?:\+91[-\s]?)?[6-9]\d{9}$/;
+
+  removeError(phoneNo);
+  removeError(status);
+  clearErrors();
+
+  let isValid = true;
+
+  if (!phoneNoRegex.test(phoneNoValue)) {
+      showError(
+          phoneNo,
+          "Invalid Phone Format. Phone number must be 10 digits & start with 6-9 (e.g., 9876543210)"
+      );
+      isValid = false;
+  }
+
+  if (!statusValue) {
+      showError(status, "Status is required");
+      isValid = false;
   }
 
   return isValid;
@@ -176,11 +219,39 @@ function deleteRow(button) {
   button.closest("tr").remove();
 }
 
-// function openForm() {
-//   document.getElementById("overlay").style.display = "block";
-//   document.getElementById("myForm").style.display = "block";
-//   document.body.classList.add("popup-open");
-// }
+
+
+
+function openUpdateForm(id, location, area, managerID, phoneNo, status) {
+  document.getElementById("branchID").value = id;
+  document.getElementById("updateLocation").value = location;
+  document.getElementById("updateArea").value = area;
+  document.getElementById("updateManagerID").value = managerID;
+  document.getElementById("updatePhoneNo").value = phoneNo;
+  document.getElementById("updateStatus").value = status;
+
+  document.getElementById("updateOverlay").style.display = "block";
+  document.getElementById("updateForm").style.display = "block";
+}
+
+function closeUpdateForm() {
+  document.getElementById("updateOverlay").style.display = "none";
+  document.getElementById("updateForm").style.display = "none";
+}
+ 
+function sureform(id){
+  console.log("Setting bID to:", id);
+  document.getElementById("bID").value = id;
+
+  document.getElementById("deleteOverlay").style.display = "block";
+  document.getElementById("deleteForm").style.display = "block";
+}
+
+function  closedeleteForm(){
+  document.getElementById("deleteOverlay").style.display = "none";
+  document.getElementById("deleteForm").style.display = "none";
+}
+
 function openForm(isUpdate = false) {
   document.getElementById("overlay").style.display = "block";
   document.getElementById("myForm").style.display = "block";

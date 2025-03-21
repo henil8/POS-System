@@ -27,13 +27,29 @@
 
   <div class="overlay" id="overlay" onclick="closeForm()"></div>
   <div class="form-popup" id="myForm">
-    <form id="foodItemForm" class="form-container">
-        <h1 class="mb-3">Add Category</h1>
+    <form method="post" action="{% url 'adminside:categories' %}"  id="foodItemForm" class="form-container">
+      {% csrf_token %} 
+      <h1 class="mb-3">Add Category</h1>
+
+        <!-- <div class="form-group">
+          <label for="itemName"><b>Category ID</b></label>
+          <input type="number" id="itemID" name="ID" placeholder="Enter category ID">
+          <span class="error-message" id="nameError"></span>
+        </div> -->
 
         <div class="form-group">
             <label for="itemName"><b>Category Name</b></label>
-            <input type="text" id="itemName" placeholder="Enter category name">
+            <input type="text" id="itemName" name="name" placeholder="Enter category name">
             <span class="error-message" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+          
+            <label for="categorystatus">Status </label>
+            <select id="status" name="status">
+              <option value="">Status</option>
+            </select>
+          
         </div>
 
         <div class="form-buttons">
@@ -42,6 +58,59 @@
         </div>
     </form>
   </div>
+ 
+<!-- Update Form -->
+<div class="overlay" id="updateOverlay" onclick="closeUpdateForm()"></div>
+<div class="form-popup" id="updateForm">
+    <form method="post" action="{% url 'adminside:update_category' %}" class="form-container" id="formUpdate">
+        {% csrf_token %}
+        <h1 class="mb-3">Update Branch</h1>
+        
+        <input type="hidden" id="updateitemID" name="itemID" />
+
+        <!-- <div class="form-group">
+          <label for="itemName"><b>Category ID</b></label>
+          <input type="number" id="updateitemIDDisplay" name="itemIDDisplay" placeholder="Enter category ID">
+          <span class="error-message" id="nameError"></span>
+        </div> -->
+
+        <div class="form-group">
+            <label for="itemName"><b>Category Name</b></label>
+            <input type="text" id="updateitemName" name="name" placeholder="Enter category name">
+            <span class="error-message" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+          
+            <label >Status </label>
+            <select id="updatestatus" name="status">
+              <option value="">Select Status</option>
+              <option value="Available">Available</option>
+              <option value="Not Available">Not Available</option>
+            </select>
+          
+        </div>
+        <div class="form-buttons">
+            <button type="submit" class="btn">Update</button>
+            <button type="button" class="btn cancel" onclick="closeUpdateForm()">Close</button>
+        </div>
+    </form>
+
+
+</div><div class="overlay" id="deleteOverlay" onclick="closedeleteForm()"></div>
+<div class="form-popup" id="deleteForm">
+  <form method="post" action="{% url 'adminside:delete_category' %}" class="form-container" id="FormDelete"  >
+    {% csrf_token %}
+    <h3 align="center">
+      Are you sure you want to delete?
+    </h3>
+    <input type="hidden" id="iID" name="iID" />
+      <div class="form-buttons">
+          <button type="submit" class="btn">Delete</button>
+          <button type="button" class="btn cancel" onclick="closedeleteForm()">Cancel</button>
+      </div>
+  </form>
+</div>
 
   <div class="table-responsive">
     <table class="table fooditem-detail-table">
@@ -53,7 +122,25 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody id="foodTableBody"></tbody>
+      <tbody> 
+         {% for category in data.categories %}
+          <tr>
+              <td>{{category.id}}</td>
+              <td>{{category.category_name}}</td>
+              <td>{{category.status}}</td>
+              <td class="action-buttons">
+                <button class="update-btn" onclick="openUpdateForm('{{ category.id }}', '{{ category.category_name }}', '{{ category.status }}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+            
+                 <button class="delete-btn" onclick="sureform('{{ category.id }}')">
+                  
+                  <i class="fas fa-trash"></i></button>
+  
+              </td>
+          </tr>
+         {% endfor  %}
+      </tbody>
     </table>
   </div>
 </div>

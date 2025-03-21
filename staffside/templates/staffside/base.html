@@ -42,6 +42,7 @@
             <h2>POS System</h2>
         </div>
         <ul>
+            <button class="sidebar-toggle">☰</button>
             <li><a href="{% url 'staffside:pos' %}" class="nav-link {% if request.path == '/staffside/pos/' %}active{% endif %}">
                 <i class="fa-solid fa-cash-register"></i><span> POS</span></a>
             </li>
@@ -69,5 +70,6 @@
     <div class="content" id="content-area">
         {% include template %}
     </div>    
+    <!-- <script src="{% static 'js/scripts.js' %}"></script>  -->
 </body>
 </html>

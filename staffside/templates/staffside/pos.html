@@ -3,13 +3,123 @@
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/pos_style.css' %}">
 {% endblock %}
-
+<!-- <div class="row" id="category-container">
+                fasdfadsf
+                sdfvsdfdas
+            </div>
+            <div class="row mt-3" id="product-container">
+                zvdsfdss
+            </div> -->
+<nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: orange;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">All</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-link active" aria-current="page" href="#">Gujarati</a><br>
+            <a class="nav-link active" aria-current="page" href="#">Italian</a>
+            <a class="nav-link" href="#">South Indian</a>
+            <a class="nav-link" href="#">Korean</a>
+            <a class="nav-link" href="#">Punjabi</a>
+        </div>
+        </div>
+    </div>
+    </nav>
 <div class="container-fluid" style="font-family: Nunito, serif; font-weight: 800">
     <div class="row">
-        <div class="col-md-9 left-section">
-            <div class="row" id="category-container"></div>
-            <div class="row mt-3" id="product-container"></div>
+        <!-- Product Section -->
+        <div class="col-lg-9 col-md-7">
+            <div class="row">
+                {% for food_items in data.inventory %}
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card shadow-sm border-0">
+                        {% if food_items.image %}
+                            <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img-top img-fluid">
+                        {% else %}
+                            <img src="/static/default-image.jpg" alt="No image" class="card-img-top img-fluid"> 
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ food_items.food_item_name }}</h5>
+                            <p class="card-text">{{ food_items.description }}</p>
+                            <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
+                            <button class="btn btn-primary w-100">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
+
+        <!-- Cart Section (Fixed with Max Height) -->
+        <div class="col-lg-3 col-md-5">
+            <div class="cart-container p-4 shadow-sm border rounded" style="position: sticky; top: 10px; max-height: 80vh; overflow-y: auto;">
+                <div class="cart-header d-flex justify-content-between align-items-center">
+                    <h3 class="cart-title">Cart</h3>
+                    <select id="table-selector" class="form-select w-50">
+                        <option value="" selected disabled>Select Table</option>
+                        <option value="1">Table 1</option>
+                        <option value="2">Table 2</option>
+                        <option value="3">Table 3</option>
+                        <option value="4">Table 4</option>
+                        <option value="5">Table 5</option>
+                    </select>
+                </div>
+
+                <div class="order-options d-flex justify-content-between mt-2">
+                    <button class="btn btn-outline-secondary">Delivery</button>
+                    <button class="btn btn-outline-secondary">Dine In</button>
+                    <button class="btn btn-outline-secondary">Take Away</button>
+                </div>
+                <hr>
+
+                <div id="cart-container" class="cart-items text-center">
+                    <p>Cart is empty</p>
+                </div>
+                <hr>
+
+                <div class="cart-summary">
+                    <p><strong>Items:</strong> <span id="cart-items-count">0</span></p>
+                    <p><strong>Discounts:</strong> <span id="cart-discount">₹0.00</span></p>
+                    <p class="total-price"><strong>Total:</strong> <span id="cart-total-price">₹0.00</span></p>
+                </div>
+
+                <button class="btn btn-primary w-100 mt-2">Place an order</button>
+                <button class="btn btn-primary w-100 mt-2">Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+            
+            
+<!-- <div class="container-fluid" style="font-family: Nunito, serif; font-weight: 800">
+    <div class="container">
+        <div class="row">
+            {% for food_items in data.inventory %} -->
+            <!-- <div class="col-md-4 col-sm-6 mb-4">   Responsive Grid 
+                <div class="card shadow-sm border-0">  Card Style 
+                    {% if food_items.image %}
+                        <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img-top img-fluid">
+                    {% else %}
+                        <img src="/static/default-image.jpg" alt="No image" class="card-img-top img-fluid"> 
+                    {% endif %}
+                    
+                    <div class="card-body text-center">  Centered Text -->
+                        <!-- <h5 class="card-title">{{ food_items.food_item_name }}</h5>
+                        <p class="card-text">{{ food_items.description }}</p>
+                        <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
+                        
+                        <button class="btn btn-primary w-100">Add to Cart</button>  <!-- Full-Width Button -->
+                    <!-- </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>  -->
+<!--             
+        </div>
+        
         <div class="col-md-3 cart-container p-4">
             <div class="cart-header d-flex justify-content-between align-items-center">
                 <h3 class="cart-title">Cart</h3>
@@ -43,6 +153,6 @@
         </div>
 
     </div>
-</div>
+</div> -->
 
-<script src="{% static 'js/pos_scripts.js' %}"></script>
+<!-- <script src="{% static 'js/pos_scripts.js' %}"></script> -->

@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import CustomPasswordChangeForm
+from django.contrib.auth import logout
+from adminside.models import Inventory
 
 def home(request):
     # return HttpResponse("<h1>hello</h1>")
@@ -23,7 +25,11 @@ def tables(request):
     return render_page(request, 'staffside/tables.html')
 
 def pos(request):
-    return render_page(request, 'staffside/pos.html')
+    inventory=Inventory.objects.all()
+    context={
+        "inventory":inventory
+    }
+    return render_page(request, 'staffside/pos.html',context)
 
 def sales(request):
     return render_page(request, 'staffside/sales.html')
@@ -55,3 +61,6 @@ def profile(request):
 def logout_view(request):
     return render_page(request, 'staffside/logout.html')
 
+def logout_user(request):
+    # logout(request)
+    return redirect('adminside:login')

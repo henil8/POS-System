@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--%^d7cuk=6rdq60-@ooq76^j2p@+w-zk+%u(k()7wa9y5e$**y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,6 +42,8 @@ INSTALLED_APPS = [
      "staffside",
 ]
 
+AUTH_USER_MODEL = 'adminside.CustomUser'  
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -53,6 +55,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'pos.urls'
+
+
 
 TEMPLATES = [
     {
@@ -125,6 +129,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'adminside/static/'),os.path.join(BASE_DIR, 'staffside/static/')]
 STATIC_ROOT = BASE_DIR / "staticfiles" 
+
+MEDIA_URL='/media/'
+MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

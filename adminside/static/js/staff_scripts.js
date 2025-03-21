@@ -27,15 +27,30 @@ document.getElementById("searchInput").addEventListener("keyup", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("staffForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      if (validateForm()) {
-        addStaff();
-      }
+  
+  document.getElementById("staffForm").addEventListener("submit", function (event) {
+      
+      
+        document.getElementById("staffForm").submit();
+      
     });
 });
+   
+//   document.getElementById("deleteForm").addEventListener("submit", function (event) {
+      
+      
+//         document.getElementById("deleteForm").submit();
+
+// });
+
+
+window.onload = function () {
+  var hasErrors = document.getElementById("formHasErrors").value;
+  if (hasErrors === "true") {
+    // Preserve the form data and errors
+    openForm(true);
+  }
+};
 
 function validateForm() {
   let email = document.getElementById("email");
@@ -160,14 +175,55 @@ function deleteRow(button) {
   button.closest("tr").remove();
 }
 
-function openForm() {
+
+
+
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+  document.getElementById("overlay").style.display = "none";
+
+  document.getElementById("staffForm").reset();  // Reset form fields
+  document.getElementById("formTitle").innerText = "Add Staff";  // Reset title
+  document.getElementById("submitButton").innerText = "Add";  // Reset button text
+}
+
+ 
+function sureform(id){
+  console.log("Setting bID to:", id);
+  document.getElementById("staffID").value = id;
+
+  document.getElementById("deleteOverlay").style.display = "block";
+  document.getElementById("deleteForm").style.display = "block";
+}
+
+function  closedeleteForm(){
+  document.getElementById("deleteOverlay").style.display = "none";
+  document.getElementById("deleteForm").style.display = "none";
+}
+
+
+
+
+// function openForm() {
+//   document.getElementById("staffForm").reset();
+//   document.getElementById("overlay").style.display = "block";
+//   document.getElementById("myForm").style.display = "block";
+//   document.body.classList.add("popup-open");
+// }
+
+function openForm(preserveData = false) {
+  // Only reset the form if we're not preserving data
+  if (!preserveData) {
+    document.getElementById("staffForm").reset();
+  }
   document.getElementById("overlay").style.display = "block";
   document.getElementById("myForm").style.display = "block";
   document.body.classList.add("popup-open");
 }
 
-function closeForm() {
-  document.getElementById("overlay").style.display = "none";
-  document.getElementById("myForm").style.display = "none";
-  document.body.classList.remove("popup-open");
-}
+// function closeForm() {
+//   document.getElementById("staffForm").reset();
+//   document.getElementById("overlay").style.display = "none";
+//   document.getElementById("myForm").style.display = "none";
+//   document.body.classList.remove("popup-open");
+// }

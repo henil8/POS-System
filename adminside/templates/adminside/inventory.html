@@ -27,62 +27,63 @@
 
   <div class="overlay" id="overlay" onclick="closeForm()"></div>
   <div class="form-popup" id="myForm">
-    <form id="foodItemForm" class="form-container">
+    <form method="post" action="{% url 'adminside:inventory' %}" id="foodItemForm" class="form-container" enctype="multipart/form-data">
+        {% csrf_token %}
         <h1 class="mb-3">Add Food Item</h1>
+            {{data.form }}
+         
 
-        <div class="form-group">
+ <!--        <div class="form-group">
             <div class="input-group">
                 <label for="itemImage"><b>Image</b></label>
-                <input type="file" id="itemImage" accept="image/*">
+                <input type="file" id="itemImage" name='image' accept="image/*">
             </div>
             <div class="input-group">
-                <label for="itemName"><b>Name</b></label>
-                <select id="itemName">
-                    <option value="">Select Name</option>
-                </select>
-                <span class="error-message" id="nameError"></span>
+              <label for="itemName"><b>Name</b></label>
+              <input type="text" id="itemName" name="itemName" placeholder="Enter Name" required/>
+              <span class="error-message" id="nameError"></span>
             </div>
         </div>
-
+      
         <div class="form-group">
-            <div class="input-group">
-                <label for="itemCategory"><b>Category</b></label>
-                <select id="itemCategory">
-                    <option value="">Select Category</option>
-                </select>
-                <span class="error-message" id="categoryError"></span>
-            </div>
+            
             <div class="input-group full-width">
                 <label for="itemDescription"><b>Description</b></label>
-                <textarea id="itemDescription" placeholder="Enter Description" required></textarea>
+                <textarea id="itemDescription" name="Description" placeholder="Enter Description" required></textarea>
                 <span class="error-message" id="descriptionError"></span>
             </div>
         </div>
 
         <div class="form-group">
             <div class="input-group">
+              <label for="itemCategory"><b>Select Category:</b></label>
+              <select name="itemCategory" id="itemCategory">
+                  <option value="">-- Select a Category --</option>
+                  {% for category in data.categories %}
+                      <option value="{{ category.id }}">{{ category.category_name }}</option>
+                  {% endfor %}
+              </select>
+                <span class="error-message" id="categoryError"></span>
+            </div>
+
+
+            <div class="input-group">
                 <label for="itemQuantity"><b>Quantity</b></label>
-                <input type="number" id="itemQuantity" placeholder="Enter Quantity" required>
+                <input type="number" name='quantity' id="itemQuantity" placeholder="Enter Quantity" required>
                 <span class="error-message" id="quantityError"></span>
             </div>
-            <div class="input-group">
-                <label for="itemStore"><b>Store</b></label>
-                <select id="itemStore">
-                    <option value="">Select Store</option>
-                </select>
-                <span class="error-message" id="storeError"></span>
-            </div>
+            
         </div>
 
         <div class="form-group">
             <div class="input-group">
                 <label for="itemCost"><b>Cost Price</b></label>
-                <input type="number" id="itemCost" placeholder="Enter Cost Price" required>
+                <input type="number" name="costprice" id="itemCost" placeholder="Enter Cost Price" required>
                 <span class="error-message" id="costPriceError"></span>
             </div>
             <div class="input-group">
                 <label for="itemSelling"><b>Selling Price</b></label>
-                <input type="number" id="itemSelling" placeholder="Enter Selling Price" required>
+                <input type="number" name='sellprice' id="itemSelling" placeholder="Enter Selling Price" required>
                 <span class="error-message" id="sellingPriceError"></span>
             </div>
         </div>
@@ -90,15 +91,15 @@
         <div class="form-group">
             <div class="input-group">
                 <label for="itemMFG"><b>MFG Date</b></label>
-                <input type="date" id="itemMFG" required>
+                <input type="date" name='mfgdate' id="itemMFG" required>
                 <span class="error-message" id="MFG-Error"></span>
               </div>
               <div class="input-group">
                 <label for="itemExpiry"><b>Expiry Date</b></label>
-                <input type="date" id="itemExpiry" required>
+                <input type="date" name='expdate' id="itemExpiry" required>
                 <span class="error-message" id="expiryError"></span>
             </div>
-        </div>
+        </div> -->
 
         <div class="form-buttons">
           <button type="submit" class="btn">Add</button>
@@ -107,25 +108,71 @@
     </form>
   </div>
 
+  <div class="overlay" id="updateOverlay" onclick="closeUpdateForm()"></div>
+  <div class="form-popup" id="updateForm">
+    <form method="post" action="{% url 'adminside:update_inventory' %}"  id="updateForm" class="form-container" enctype="multipart/form-data" >
+      {% csrf_token %}
+      <h1>Update Inventory</h1>
+        <input type="hidden" id="updateitemID" name="id">
+          
+        
+        
+        <div id="updateFormFields">
+          {{ data.form }}  <!-- Initially empty; JavaScript will replace it -->
+      </div>
+          
+            
+          
+        <div class="form-buttons">
+          <button type="submit" class="btn">Update</button>
+          <button type="button" class="btn cancel" onclick="closeUpdateForm()">Close</button>
+      </div>
+    </form>
+  </div>
+
+
+
+
   <div class="table-responsive">
     <table class="table fooditem-detail-table">
       <thead style=" border-bottom: 2px solid #333 !important">
         <tr>
           <th>ID</th>
-          <th>Image</th>
           <th>Name</th>
           <th>Category</th>
-          <th>Description</th>
           <th>Quantity</th>
-          <th>Store</th>
-          <th>Selling Price</th>
           <th>Cost Price</th>
+          <th>Selling Price</th>
           <th>MFG Date</th>
           <th>Expiry Date</th>
           <th>Action</th>
         </tr>
       </thead>
-      <tbody id="foodTableBody"></tbody>
+      <tbody>
+          {% for food_items in data.inventory %}
+          <tr>
+              <td>{{food_items.id}}</td>
+              <td>{{food_items.food_item_name}}</td>
+              <td>{{food_items.category}}</td>
+              <td>{{food_items.quantity}}</td>
+              <td>{{food_items.cost_price}}</td>
+              <td>{{food_items.sell_price}}</td>
+              <td>{{food_items.mfg_date}}</td>
+              <td>{{food_items.exp_date}}</td>
+              <td class="action-buttons">
+                <button class="update-btn" onclick="openUpdateForm('{{food_items.id}}')">     <!--('{{ food_items.img.url }}','{{food_items.id}}','{{food_items.food_item_name}}','{{food_items.category}}','{{food_items.quantity}}','{{food_items.description}}','{{food_items.cost_price}}','{{food_items.sell_pricee}}','{{food_items.mfg_date|date}}','{{food_items.exp_date}}' -->
+                     <i class="fas fa-edit"></i>     
+                </button>
+            
+                 <button class="delete-btn" onclick="sureform('{{ category.id }}')">
+                  
+                  <i class="fas fa-trash"></i></button>
+  
+              </td>
+          </tr>
+          {%  endfor  %}
+
+      </tbody>
     </table>
   </div>
 </div>
