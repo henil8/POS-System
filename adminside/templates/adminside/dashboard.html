@@ -4,21 +4,335 @@
 {% endblock %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/dashboard_style.css' %}">
+<style>
+#salesChart {
+    height: 320px !important;   /* slightly increased height */
+    max-width: 100% !important; /* responsive width */
+    width: 95% !important;      /* a bit reduced width */
+    margin: auto;               /* center it */
+}
+#dashboardFilter {
+    min-width: 140px;
+    padding: 6px 12px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+.water-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.water-fill::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  transition: width 1s ease-in-out;
+}
+
+#revenue-fill::after {
+  background-color: #004085;
+}
+
+
+#orders-fill::after {
+  background-color: #155724;
+}
+
+
+#profit-fill::after {
+  background-color: #856404;
+}
+
+.water-fill .fill-inner {
+  height: 100%;
+  transition: width 1s ease-in-out;
+}
+
+
+
+</style>
 {% endblock %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/1.10.1/billboard.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/1.10.1/billboard.min.css">
 
-<div class="dashboard-container">
-    <div class="row title-row">
-        <h2>DASHBOARD</h2>
+<div class="container-fluid px-4">
+    <!-- <h1 class="mt-4">Dashboard</h1> -->
+
+    <!-- Top Row: Welcome + 3 Stat Cards -->
+    <div class="row mt-4">
+        <!-- <div class="col-md-12 mb-2">
+            <p style="font-style: italic; margin: 0;">Welcome Back</p>
+            <h2 style="font-weight: bold;">{{request.user.first_name}}</h2>
+        </div> -->
+        <div class="col-md-8">
+            <p style="font-style: italic; margin: 0;">Welcome Back</p>
+            <h2 style="font-weight: bold;">{{ request.user.first_name }}</h2>
+        </div>
+        <div class="col-md-4 text-end">
+         <form method="post">
+            {% csrf_token %}
+            <label for="dashboardFilter" class="form-label mb-1 fw-bold">Filter Dashboard:</label>
+            <select id="dashboardFilter" name="filter" class="form-select form-select-sm w-auto d-inline-block" onchange="this.form.submit()">
+                <option value="Today" {% if data.filter == "Today" %}selected{% endif %}>Today</option>
+                <option value="weekly" {% if data.filter == "weekly" %}selected{% endif %}>Weekly</option>
+                <option value="month" {% if data.filter == "month" %}selected{% endif %}>Monthly</option>
+                <!-- <option value="year" {% if data.filter == "yearly" %}selected{% endif %}>Yearly</option> -->
+            </select>
+        </form>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="water-fill bg-primary" id="revenue-fill"
+                    data-value="{{ data.total_revenue_today }}">
+                    <div class="fill-inner" style="height: 100%; background-color: rgba(255, 255, 255, 0.2); width: 0%;"></div>
+                </div>
+              <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <div class="water-fill bg-primary" id="revenue-fill"
+                     {% if data.filter == 'Today' %}
+                       data-value="{{ data.total_revenue_today }}"
+                     {% elif data.filter == 'weekly' %}
+                       data-value="{{ data.total_revenue_this_week }}"
+                     {% else %}
+                       data-value="{{ data.total_revenue_this_month }}"
+                     {% endif %}
+                ></div>
+                {% if data.filter == 'Today' %}
+                  <h3 class="card-text">₹ {{ data.total_revenue_today }}</h3>
+                {% elif data.filter == 'weekly' %}
+                  <h3 class="card-text">₹ {{ data.total_revenue_this_week }}</h3>
+                {% else %}
+                  <h3 class="card-text">₹ {{ data.total_revenue_this_month }}</h3>
+                {% endif %}
+                <small>({{ data.filter }})</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <div class="water-fill bg-success" id="orders-fill"
+                     {% if data.filter == 'Today' %}
+                       data-value="{{ data.total_orders_today }}"
+                     {% elif data.filter == 'weekly' %}
+                       data-value="{{ data.total_orders_this_week }}"
+                     {% else %}
+                       data-value="{{ data.total_orders_this_month }}"
+                     {% endif %}
+                ></div>
+                {% if data.filter == 'Today' %}
+                  <h3 class="card-text">{{ data.total_orders_today }}</h3>
+                {% elif data.filter == 'weekly' %}
+                  <h3 class="card-text">{{ data.total_orders_this_week }}</h3>
+                {% else %}
+                  <h3 class="card-text">{{ data.total_orders_this_month }}</h3>
+                {% endif %}
+                <small>({{ data.filter }})</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Total Profit</h5>
+                <div class="water-fill bg-warning" id="profit-fill"
+                     {% if data.filter == 'Today' %}
+                       data-value="{{ data.total_profit_today }}"
+                     {% elif data.filter == 'weekly' %}
+                       data-value="{{ data.total_profit_this_week }}"
+                     {% else %}
+                       data-value="{{ data.total_profit_this_month }}"
+                     {% endif %}
+                ></div>
+                {% if data.filter == 'Today' %}
+                  <h3 class="card-text">₹ {{ data.total_profit_today }}</h3>
+                {% elif data.filter == 'weekly' %}
+                  <h3 class="card-text">₹ {{ data.total_profit_this_week }}</h3>
+                {% else %}
+                  <h3 class="card-text">₹ {{ data.total_profit_this_month }}</h3>
+                {% endif %}
+                <small>({{ data.filter }})</small>
+              </div>
+            </div>
+          </div>
+          
+
+        
+
+        <!-- Original Code -->
+
+        <!-- <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    {% if data.filter == 'Today' %}
+                      <h3 class="card-text">₹ {{data.total_revenue_today}}</h3>
+                    {% elif data.filter == 'weekly' %}
+                      <h3 class="card-text">₹ {{data.total_revenue_this_week}}</h3>
+                    {% else %}
+                      <h3 class="card-text">₹ {{data.total_revenue_this_month}}</h3>
+                    {% endif %}
+
+                    <small>({{data.filter}})</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    {% if data.filter == 'Today' %}
+                      <h3 class="card-text">{{data.total_orders_today}}</h3>
+                    {% elif data.filter == 'weekly' %}
+                      <h3 class="card-text">{{data.total_orders_this_week}}</h3>
+                    {% else %}
+                      <h3 class="card-text">{{data.total_orders_this_month}}</h3>
+                    {% endif %}
+                    <small>({{data.filter}})</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Profit</h5>
+                    {% if data.filter == 'Today' %}
+                      <h3 class="card-text">₹ {{data.total_profit_today}}</h3>
+                    {% elif data.filter == 'weekly' %}
+                      <h3 class="card-text">₹ {{data.total_profit_this_week}}</h3>
+                    {% else %}
+                      <h3 class="card-text">₹ {{data.total_profit_this_month}}</h3>
+                    {% endif %}
+                    <small>({{data.filter}})</small>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <!-- Second Row: Graph (Left) + Trending Dishes (Right) -->
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    Revenue (Daily / Weekly / Monthly)
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Sales Summary</div>
+                <div class="card-body">
+                    <canvas id="categoryDonutChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="row graph-row">
-        <div class="col-6">
-            <div class="sales-box">
-                <a href="{% url 'adminside:reports' %}" class="btn-report">View Report</a>
+
+    <!-- Third Row: Donut Chart (Left) + Best Employee (Right) -->
+    <div class="row mt-4">
+        <!-- Trending Dishes Column -->
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm border-0 h-100">
+                <div class="card-header  text-white d-flex justify-content-between align-items-center" style="background-color: rgb(215, 135, 15);">
+                    <h6 class="mb-0">Trending Dishes</h6>
+                    <span class="badge bg-light text-dark">{{ data.filter|title }}</span>
+                </div>
+                <div class="card-body">
+                    {% if data.filter == 'Today' %}
+                        {% if data.todays_trending_dishes %}
+                            <ul class="list-group list-group-flush">
+                                {% for dish in data.todays_trending_dishes %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="fw-medium">{{ dish.item_name }}</span>
+                                        <span class="badge bg-success rounded-pill">{{ dish.quantity }} sold</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted text-center mb-0">No trending dishes available.</p>
+                        {% endif %}
+                    {% elif data.filter == 'weekly' %}
+                        {% if data.this_weeks_trending_dishes %}
+                            <ul class="list-group list-group-flush">
+                                {% for dish in data.this_weeks_trending_dishes %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="fw-medium">{{ dish.item_name }}</span>
+                                        <span class="badge bg-success rounded-pill">{{ dish.quantity }} sold</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted text-center mb-0">No trending dishes available.</p>
+                        {% endif %}
+                    {% else %}
+                        {% if data.this_months_trending_dishes %}
+                            <ul class="list-group list-group-flush">
+                                {% for dish in data.this_months_trending_dishes %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="fw-medium">{{ dish.item_name }}</span>
+                                        <span class="badge bg-success rounded-pill">{{ dish.quantity }} sold</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted text-center mb-0">No trending dishes available.</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div> <!-- END of Trending Dishes col -->
+    
+        <!-- Best Employee Column -->
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm border-0 h-100" >
+                <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #84b814;">
+                    <span>Best Employee</span>
+                 
+                </div>
+              
+
+            <div class="card-body" >
+            {% if data.best_employees %}
+                <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between fw-bold">
+                    <span>#</span>
+                    <span>Name</span>
+                    <span>Total Orders</span>
+                </li>
+                {% for best in data.best_employees %}
+                  {% if not best.staff_name == 'henil' %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ forloop.counter }}</span>
+                    <span>{{ best.staff_name }}</span>
+                    <span>{{ best.total_orders }}</span>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted text-center mb-0">No Employees data available.</p>
+            {% endif %}
+            </div>
+
+            </div>
+        </div> <!-- END of Best Employee col -->
+    </div>
+<!-- <a href="{% url 'adminside:reports' %}" class="btn-report">View Report</a>
                 <div class="sales-container">
                     <p class="sales-title">Daily Sales</p>
                     <p class="sales-value">2,568</p>
@@ -26,75 +340,205 @@
                 </div>
                 <div class="chart-container">
                     <canvas id="salesChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="stat-card-income">
-                <p class="sales-title">Total Income</p>
-                <div class="donut-chart-container">
-                    <div id="donut-chart"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="row"></div>
-                <div class="col-md-5" style="width: 77.666667%;">
-                    <div class="stat-card1">
-                        <div class="stat-icon stat-icon-green">
-                            <i class="fas fa-users fa-lg" style="color: green;"></i>
-                        </div>
-                        <p class="stat-title">New Customers</p>
-                        <p class="stat-percentage positive">+32.40%</p>
-                        <p class="stat-value">21,375</p>
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-green" style="width: 85%;"></div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col-md-5" style="width: 77.666667%;">
-                    <div class="stat-card1 mt-2">
-                        <div class="stat-icon">
-                            <i class="fas fa-box fa-lg" style="color: #FF8C42;"></i>
-                        </div>
-                        <p class="stat-title">Total Orders</p>
-                        <p class="stat-percentage negative">-2.3%</p>
-                        <p class="stat-value">21,375</p>
-                        <div class="progress">
-                            <div class="progress-bar" style="width: 70%;"></div>
-                        </div>
-                    </div>
-                </div>        
-            </div>
-
-
-        </div>
-    </div>
-    <div class="row detail-row">
-        <div class="col-md-6">
-            <div class="da-box">
-                <p class="sales-title">Trending Dishes</p>
-                <select id="trendingDishesDropdown" class="dropdown">
-                    <option value="today">Today</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="da-box best-employee-container">
-                <p class="sales-title">Best Employee</p>
-                <select id="bestEmployeeDropdown" class="dropdown">
-                    <option value="today">Today</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
-            </div>
-
-        </div>
-    </div>
-</div>
-
+                </div> -->
 <script src="{% static 'js/dashboard_scripts.js' %}"></script>
+<script>
+       const ctx = document.getElementById('salesChart').getContext('2d');
+    const selectedFilter = "{{ data.filter }}";
+    console.log(selectedFilter);
+
+    let salesTimes = [];
+    let salesAmounts = [];
+
+    if (selectedFilter === 'Today') {
+        salesTimes = {{ data.sales_time|default:"[]"|safe }};
+        salesAmounts = {{ data.sales_amount|default:"[]"|safe }};
+    } else if (selectedFilter === 'weekly') {
+        salesTimes = {{ data.sales_last_week|default:"[]"|safe }};
+        salesAmounts = {{ data.sales_total_last_week|default:"[]"|safe }};
+    } else if (selectedFilter === 'month') {
+        salesTimes = {{ data.sales_last_month|default:"[]"|safe }};
+        salesAmounts = {{ data.sales_total_last_month|default:"[]"|safe }};
+    }
+
+    // ✅ Destroy existing chart if it exists
+    if (window.salesChartInstance) {
+        window.salesChartInstance.destroy();
+    }
+
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
+    gradient.addColorStop(0.5, 'rgba(255, 159, 64, 0.4)');
+    gradient.addColorStop(1, 'rgba(54, 162, 235, 0.4)');
+
+    // ✅ Assign chart to global variable
+    window.salesChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: salesTimes,
+            datasets: [{
+                label: 'Sales (₹)',
+                data: salesAmounts,
+                fill: true,
+                borderColor: '#FF6384',
+                backgroundColor: gradient,
+                tension: 0.4,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#FF6384',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    font: { size: 20 }
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                            return `₹${context.parsed.y}`;
+                        }
+                    }
+                },
+                legend: { display: false },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: function(value) {
+                        return `₹${value}`;
+                    },
+                    color: '#333',
+                    font: { weight: 'bold' }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: salesAmounts.length ? Math.max(...salesAmounts) + 200 : 1000,
+                    ticks: {
+                        stepSize: 500,
+                        callback: function(value) {
+                            return `₹${value}`;
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Total Amount (₹)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: true,
+                        maxRotation: 0,
+                        minRotation: 0,
+                        maxTicksLimit: 8
+                    },
+                    title: {
+                        display: true,
+                        text: selectedFilter === 'Today' ? 'Time (Hourly)' :
+                              selectedFilter === 'weekly' ? 'Date' :
+                              selectedFilter === 'month' ? 'Date' : 'Month'
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    const categoryCtx = document.getElementById('categoryDonutChart').getContext('2d');
+
+// Convert to numbers explicitly
+const foodSales = Number({{ data.Food|default:"0"|safe }});
+const refreshmentSales = Number({{ data.Refreshments|default:"0"|safe }});
+const otherSales = Number({{ data.Deserts|default:"0"|safe }});
+
+console.log(foodSales)
+const totalSales = foodSales + refreshmentSales + otherSales;
+
+// Destroy existing chart instance if exists
+if (window.categoryDonutInstance) {
+    window.categoryDonutInstance.destroy();
+}
+
+window.categoryDonutInstance = new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Food', 'Refreshments', 'Deserts'],
+        datasets: [{
+            data: [foodSales, refreshmentSales, otherSales],
+            backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384'],
+            hoverOffset: 10,
+            borderColor: '#fff',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: {
+            animateRotate: true,
+            animateScale: true,
+            duration: 1000
+        },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#333',
+                    font: { size: 14 }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const value = context.raw;
+                        const percentage = totalSales > 0 ? ((value / totalSales) * 100).toFixed(1) : 0;
+                        return `${context.label}: (${percentage}%)`;
+                    }
+                }
+            },
+            title: {
+                display: false
+            }
+        }
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const fillBars = [
+        { id: "revenue-fill", max: 100000 },  // adjust max values to suit your business scale
+        { id: "orders-fill", max: 1000 },
+        { id: "profit-fill", max: 50000 }
+    ];
+
+    fillBars.forEach(bar => {
+        const el = document.getElementById(bar.id);
+        const value = parseFloat(el.dataset.value || 0);
+        const percent = Math.min(100, (value / bar.max) * 100);
+        el.querySelector("::after"); // Not needed
+        el.style.setProperty("--fill-percent", percent + "%");
+
+        // We add the width using JS because pseudo-elements can't be directly accessed
+        const afterDiv = document.createElement("div");
+        afterDiv.style.position = "absolute";
+        afterDiv.style.left = "0";
+        afterDiv.style.top = "0";
+        afterDiv.style.height = "100%";
+        afterDiv.style.width = percent + "%";
+        afterDiv.style.transition = "width 1s ease-in-out";
+
+        // Match colors based on ID
+        if (bar.id === "revenue-fill") afterDiv.style.backgroundColor = "#004085";
+        else if (bar.id === "orders-fill") afterDiv.style.backgroundColor = "#155724";
+        else if (bar.id === "profit-fill") afterDiv.style.backgroundColor = "#856404";
+
+        el.appendChild(afterDiv);
+    });
+});
+</script>
+

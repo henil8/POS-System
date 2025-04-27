@@ -2,69 +2,138 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/pos_style.css' %}">
+
 {% endblock %}
-<!-- <div class="row" id="category-container">
-                fasdfadsf
-                sdfvsdfdas
-            </div>
-            <div class="row mt-3" id="product-container">
-                zvdsfdss
-            </div> -->
-<nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: orange;">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">All</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-            <a class="nav-link active" aria-current="page" href="#">Gujarati</a><br>
-            <a class="nav-link active" aria-current="page" href="#">Italian</a>
-            <a class="nav-link" href="#">South Indian</a>
-            <a class="nav-link" href="#">Korean</a>
-            <a class="nav-link" href="#">Punjabi</a>
+
+
+{% if messages %}
+  {% for message in messages %}
+    {% if message.tags == 'error' %}
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+          {% for message in messages %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            {% endfor %}
         </div>
+         
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+
+<!-- {% if messages  %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  {% for message in messages %}
+        {{message}} 
+     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  {% endfor %}
+</div>
+{% endif %} -->
+
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary" style="margin-bottom: 10px; margin-top: -9px;">
+    <div class="container-fluid">
+      {% if data.selected_table %}  
+        <a class="navbar-brand {% if not request.GET.cate_name %} active {% endif %}" 
+            href="{% url 'staffside:pos' %}?table_no={{data.selected_table}}" 
+            style="margin-right: 25px;">
+            <b>All</b>
+        </a>
+      {% else %}
+        <a class="navbar-brand {% if not request.GET.cate_name %} active {% endif %}" 
+           href="{% url 'staffside:pos' %}" 
+           style="margin-right: 25px;">
+           <b>All</b>
+      {% endif %}
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+            data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" 
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="category-container container-fluid overflow-auto" style="scrollbar-width: thin; scrollbar-color: rgb(224, 221, 221) transparent;">
+            <div class="collapse navbar-collapse">
+                <div class="navbar-nav d-flex flex-nowrap"> 
+                    {% for i in data.categories %}   
+                     {% if data.selected_table %}        
+                        <a class="nav-link {% if request.GET.cate_name|stringformat:'s' == i.id|stringformat:'s' %}active{% endif %} mx-2 text-nowrap" 
+                            href="{% url 'staffside:pos' %}?cate_name={{ i.id }}&table_no={{data.selected_table}}" style="margin-right: 35px;">
+                            <b>{{ i.category_name }}</b>    
+                        </a>
+                     {% else %}
+                        <a class="nav-link {% if request.GET.cate_name|stringformat:'s' == i.id|stringformat:'s' %}active{% endif %} mx-2 text-nowrap" 
+                        href="{% url 'staffside:pos' %}?cate_name={{ i.id }}" style="margin-right: 35px;">
+                          <b>{{ i.category_name }}</b>    
+                        </a>
+                     {% endif %}  
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
-    </nav>
-<div class="container-fluid" style="font-family: Nunito, serif; font-weight: 800">
-    <div class="row">
-        <!-- Product Section -->
-        <div class="col-lg-9 col-md-7">
-            <div class="row">
-                {% for food_items in data.inventory %}
-                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                    <div class="card shadow-sm border-0">
-                        {% if food_items.image %}
-                            <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img-top img-fluid">
-                        {% else %}
-                            <img src="/static/default-image.jpg" alt="No image" class="card-img-top img-fluid"> 
-                        {% endif %}
-                        <div class="card-body text-center">
-                            <h5 class="card-title">{{ food_items.food_item_name }}</h5>
-                            <p class="card-text">{{ food_items.description }}</p>
-                            <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
-                            <button class="btn btn-primary w-100">Add to Cart</button>
+</nav>
+
+
+
+    <!-- <a class="nav-link active" aria-current="page" href="#" style="margin-right: 35px;"><input type="hidden" value="Italian" name="cat_name">{{i.category_name}}</a>
+            <a class="nav-link active"  href="#" style="margin-right: 35px;"><input type="hidden" value="South Indian" name="cat_name">{{i.category_name}}</a>
+            <a class="nav-link active" href="#" style="margin-right: 35px;"><input type="hidden" value="Korean" name="cat_name">{{i.category_name}}</a>
+            <a class="nav-link active" href="#" style="margin-right: 35px;"><input type="hidden" value="Punjabi" name="cat_name">{{i.category_name}}</a>
+            <a class="nav-link active" href="#" style="margin-right: 35px;"><input type="hidden" value="Fast Food" name="cat_name">{{i.category_name}}</a> -->
+    <div class="container-fluid" style="font-family: Nunito, serif; font-weight: 800">
+        <div class="row h-80">
+            <!-- Product Section -->
+            <div class="col-lg-9 col-md-7">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                    {% for food_items in data.inventory %}
+                    <div class="col">
+                        <div class="card h-100">
+                            {% if food_items.image %}
+                                <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img img-fluid">
+                            {% else %}
+                                <img src="/static/default-image.jpg" alt="No image" class="card-img"> 
+                            {% endif %}
+                            <div class="card-body text-center d-flex flex-column">
+                                <h5 class="card-title">{{ food_items.food_item_name }}</h5>
+                                <!-- <p class="card-text">{{ food_items.description }}</p> -->
+                                <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
+                                <form method="post" action="{% url 'staffside:cart' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="Table_no" class="table-no-input">
+                                    <input type="hidden" value="{{request.GET.cate_name}}" name="cate_name">
+                                    <input type="hidden" value="{{ food_items.food_item_name }}" name="itemName">
+                                    <input type="hidden" value="1" name="quantity">
+                                    <input type="hidden" value="{{ food_items.sell_price }}" name="price">
+                                    <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-        </div>
 
         <!-- Cart Section (Fixed with Max Height) -->
         <div class="col-lg-3 col-md-5">
             <div class="cart-container p-4 shadow-sm border rounded" style="position: sticky; top: 10px; max-height: 80vh; overflow-y: auto;">
                 <div class="cart-header d-flex justify-content-between align-items-center">
                     <h3 class="cart-title">Cart</h3>
-                    <select id="table-selector" class="form-select w-50">
-                        <option value="" selected disabled>Select Table</option>
-                        <option value="1">Table 1</option>
-                        <option value="2">Table 2</option>
-                        <option value="3">Table 3</option>
-                        <option value="4">Table 4</option>
-                        <option value="5">Table 5</option>
-                    </select>
+                    
+                    <form method="get">
+                        <input type="hidden" value="{{request.GET.cate_name}}" name="cate_name">
+                        <select id="table-selector" name="table_no" class="form-select w-80" onchange="this.form.submit()">
+                            <option value="" disabled {% if not data.selected_table %}selected{% endif %}>Select Table</option>
+                            {% for table in data.tables %}
+                            <option value="{{table.table_id}}" {% if data.selected_table|stringformat:"s" == table.table_id|stringformat:"s" %}selected{% endif %}>Table {{table.table_id}}</option>
+                            {% endfor %}
+                            <!-- <option value="1" {% if data.selected_table == "1" %}selected{% endif %}>Table 1</option>
+                            <option value="2" {% if data.selected_table == "2" %}selected{% endif %}>Table 2</option>
+                            <option value="3" {% if data.selected_table == "3" %}selected{% endif %}>Table 3</option>
+                            <option value="4" {% if data.selected_table == "4" %}selected{% endif %}>Table 4</option>
+                            <option value="5" {% if data.selected_table == "5" %}selected{% endif %}>Table 5</option> -->
+                        </select>
+                    </form>
                 </div>
 
                 <div class="order-options d-flex justify-content-between mt-2">
@@ -75,84 +144,231 @@
                 <hr>
 
                 <div id="cart-container" class="cart-items text-center">
-                    <p>Cart is empty</p>
-                </div>
+                    <div id="filter_table"> 
+                    {% if data.filter_cart %}
+                        {% for cart_item in data.filter_cart %}
+                            <div class="cart-item d-flex justify-content-between align-items-center p-2 border-bottom">
+                              
+                                <div class="d-flex flex-column align-items-center">
+                                    <strong >{{ cart_item.item_name }}</strong>
+                                    <small class="me-3">₹{{ cart_item.price }}</small> 
+                                </div>
+                
+                                
+                                <div class="d-flex align-items-center">
+                                    
+                                    
+                                    <a href="{% url 'staffside:delete_quantity' cart_item.item_name %}?cate_name={{ request.GET.cate_name }}&table_no={{data.selected_table}}"><button class="btn btn-sm btn-outline-secondary decrease-qty" data-id="{{ cart_item.id }}">-</button></a>
+                                    <span class="mx-2">{{ cart_item.quantity }}</span>
+                                    <a href="{% url 'staffside:add_quantity' cart_item.item_name %}?cate_name={{ request.GET.cate_name }}&table_no={{data.selected_table}}"><button class="btn btn-sm btn-outline-secondary increase-qty" data-id="{{ cart_item.id }}">+</button></a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Cart is empty</p>
+                    {% endif %}
+                    </div>
+                      
+                   
+                </div>  
+                
                 <hr>
+                   
+                {% if messages %}
+                        <!-- {% for message in messages %} -->
+                            {% if message.tags == 'success' %}
+                                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endif %}
+                        <!-- {% endfor %} -->
+                  {% endif %}
+
+
 
                 <div class="cart-summary">
-                    <p><strong>Items:</strong> <span id="cart-items-count">0</span></p>
-                    <p><strong>Discounts:</strong> <span id="cart-discount">₹0.00</span></p>
-                    <p class="total-price"><strong>Total:</strong> <span id="cart-total-price">₹0.00</span></p>
+                    <p><strong>Items:</strong> <span id="cart-items-count">{{data.total_items}}</span></p>
+                    <!-- <p><strong>Discounts:</strong> <span id="cart-discount">₹0.00</span></p> -->
+                    <p class="total-price"><strong>Total:</strong> <span id="cart-total-price">₹{{data.total}}</span></p>
                 </div>
+                {% if data.filter_cart %}
+                <form method="post" action="{% url 'staffside:orders_taken' %}">
+                  {% csrf_token %}
+                  
+                  <input type="hidden" value="{{request.GET.table_no}}" name="Table_id">
+                  <input type="hidden" name="customer_name" value="{{ customer_name }}">
+                  <!-- Customer Name Input -->
+                  <div class="mb-2">     
+                      <label for="customerName" class="form-label"><strong>Customer Name:</strong></label>
+                      {% if data.cust_name %}
+                         {{data.cust_name}}
+                      {% else %}
+                        <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Enter Customer Name" required>
+                      {% endif %}
+                  </div>
+                
+                  <button class="btn btn-primary w-100 mt-2">Place an order</button>
+                </form>
+                {% endif %}
 
-                <button class="btn btn-primary w-100 mt-2">Place an order</button>
-                <button class="btn btn-primary w-100 mt-2">Payment</button>
+                
+                <form method="get" action="{% url 'staffside:payment_page' %}">
+                    <input type="hidden" name="table_no" value="{{ data.selected_table }}">
+                    <button type="submit" class="btn btn-primary w-100 mt-2">Payment</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
             
-            
-<!-- <div class="container-fluid" style="font-family: Nunito, serif; font-weight: 800">
-    <div class="container">
-        <div class="row">
-            {% for food_items in data.inventory %} -->
-            <!-- <div class="col-md-4 col-sm-6 mb-4">   Responsive Grid 
-                <div class="card shadow-sm border-0">  Card Style 
-                    {% if food_items.image %}
-                        <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img-top img-fluid">
-                    {% else %}
-                        <img src="/static/default-image.jpg" alt="No image" class="card-img-top img-fluid"> 
-                    {% endif %}
-                    
-                    <div class="card-body text-center">  Centered Text -->
-                        <!-- <h5 class="card-title">{{ food_items.food_item_name }}</h5>
-                        <p class="card-text">{{ food_items.description }}</p>
-                        <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
-                        
-                        <button class="btn btn-primary w-100">Add to Cart</button>  <!-- Full-Width Button -->
-                    <!-- </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>  -->
-<!--             
-        </div>
-        
-        <div class="col-md-3 cart-container p-4">
-            <div class="cart-header d-flex justify-content-between align-items-center">
-                <h3 class="cart-title">Cart</h3>
-                <select id="table-selector" class="form-select w-50">
-                    <option value="" selected disabled>Select Table</option>
-                    <option value="1">Table 1</option>
-                    <option value="2">Table 2</option>
-                    <option value="3">Table 3</option>
-                    <option value="4">Table 4</option>
-                    <option value="5">Table 5</option>
-                </select>
-            </div>
-            
-            <div class="order-options d-flex justify-content-between">
-                <button class="btn btn-light">Delivery</button>
-                <button class="btn btn-light">Dine In</button>
-                <button class="btn btn-light">Take Away</button>
-            </div>
-            <hr>
-            <div id="cart-container" class="cart-items">
-                <p class="text-center">Cart is empty</p>
-            </div>
-            <hr>
-            <div class="cart-summary">
-                <p><strong>Items:</strong> <span id="cart-items-count">0</span></p>
-                <p><strong>Discounts:</strong> <span id="cart-discount">₹0.00</span></p>
-                <p class="total-price"><strong>Total:</strong> <span id="cart-total-price">₹0.00</span></p>
-            </div>
-            <button class="btn btn-primary w-100 place-order-btn">Place an order</button>
-            <button class="btn btn-primary w-100 payment-btn">Payment</button>
-        </div>
 
-    </div>
-</div> -->
 
 <!-- <script src="{% static 'js/pos_scripts.js' %}"></script> -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+            
+        let tableSelector = document.getElementById("table-selector");
+        // let tablevalue = document.getElementById("table-selector").value;
+        // console.log(tableSelector);
+    
+        tableSelector.addEventListener("change", function () {
+            console.log(tableSelector.value);
+        //     fetch(`/staffside/filter_table/${tableSelector.value}/`)  // Fetch the form from Django
+        //     .then(response => response.text())  // Convert response to HTML
+        //     .then(html => {
+        //    // Set hidden input ID
+        //        document.getElementById("filter_table").innerHTML = html;  // Inject form fields
+        //    // Show popup
+        // })
+        //      .catch(error => console.error("Error fetching form:", error));
+        });
+        
+        document.querySelectorAll(".btn-primary").forEach(button => {
+        button.addEventListener("click", function (event) {
+                  // Prevent form submission (if applicable)
+
+            // Check if a table is selected
+           
+ 
+            // Set the hidden input value inside the form
+            let hiddenTableInput = this.closest("form").querySelector(".table-no-input");
+            if (hiddenTableInput) {
+                hiddenTableInput.value = tableSelector.value;
+                console.log("Table Selected:", hiddenTableInput.value); // Debugging
+            }
+        });
+    });
+
+    
+        // function updateCartUI() {
+        //     let cartContainer = document.getElementById("cart-container");
+        //     let cartItemsCount = document.getElementById("cart-items-count");
+        //     let cartTotalPrice = document.getElementById("cart-total-price");
+    
+        //     cartContainer.innerHTML = ""; // Clear previous cart items
+        //     let totalItems = 0;
+        //     let totalPrice = 0;
+    
+        //     if (Object.keys(cart).length === 0) {
+        //         cartContainer.innerHTML = "<p>Cart is empty</p>";
+        //         cartItemsCount.textContent = 0;
+        //         cartTotalPrice.textContent = "₹0.00";
+        //         return;
+        //     }
+    
+        //     // Loop through cart items
+        //     Object.values(cart).forEach(item => {
+        //         totalItems += item.quantity;
+        //         totalPrice += item.quantity * item.price;
+    
+        //         let itemElement = document.createElement("div");
+        //         itemElement.classList.add("cart-item", "d-flex", "justify-content-between", "align-items-center", "mb-2");
+    
+        //         itemElement.innerHTML = `
+        //             <div class="d-flex align-items-center">
+        //                 <img src="${item.image}" alt="${item.name}" class="cart-img me-2" style="width: 40px; height: 40px;">
+        //                 <div>       
+        //                     <strong>${item.name}</strong><br>
+        //                     <small>₹${item.price.toFixed(2)}</small>
+        //                 </div>
+        //             </div>
+        //             <div class="d-flex align-items-center">
+        //                 <button class="btn btn-sm btn-outline-secondary decrease-qty" data-id="${item.id}">-</button>
+        //                 <span class="mx-2">${item.quantity}</span>
+        //                 <button class="btn btn-sm btn-outline-secondary increase-qty" data-id="${item.id}">+</button>
+        //             </div>
+        //         `;
+    
+        //         cartContainer.appendChild(itemElement);
+        //     });
+    
+        //     // Update cart summary
+        //     cartItemsCount.textContent = totalItems;
+        //     cartTotalPrice.textContent = `₹${totalPrice.toFixed(2)}`;
+    
+        //     // Attach event listeners for increasing/decreasing quantity
+        //     document.querySelectorAll(".increase-qty").forEach(button => {
+        //         button.addEventListener("click", function () {
+        //             let id = this.getAttribute("data-id");
+        //             cart[id].quantity++;
+        //             updateCartUI();
+        //         });
+        //     });
+    
+        //     document.querySelectorAll(".decrease-qty").forEach(button => {
+        //         button.addEventListener("click", function () {
+        //             let id = this.getAttribute("data-id");
+        //             if (cart[id].quantity > 1) {
+        //                 cart[id].quantity--;
+        //             } else {
+        //                 delete cart[id]; // Remove item if quantity is zero
+        //             }
+        //             updateCartUI();
+        //         });
+        //     });
+        // }
+    
+        // Add event listeners to "Add to Cart" buttons
+        // document.querySelectorAll(".btn-primary").forEach(button => {
+        //     button.addEventListener("click", function () {
+        //         // Check if a table is selected
+        //         if (!tableSelector.value) {
+        //             alert("⚠️ Please select a table first before adding items to the cart.");
+        //             return;
+        //         }
+                
+        //         let card = this.closest(".card");
+        //         let name = card.querySelector(".card-title").textContent;
+        //         let price = parseFloat(card.querySelector(".price strong").textContent.replace("₹", ""));
+        //         let image = card.querySelector("img").src;
+    
+        //         let id = name.toLowerCase().replace(/\s+/g, "-"); // Create a unique ID based on item name
+    
+        //         // Check if item is already in the cart
+        //         if (cart[id]) {
+        //             alert("⚠️ This item is already in the cart!");
+        //             return;
+        //         }
+    
+        //         // Add new item to the cart
+        //         cart[id] = { id, name, price, quantity: 1, image };
+    
+        //         updateCartUI();
+        //     });
+        // });
+
+
+        // function itemalreadyExist(){
+        //      document.getElementById("popupForm").style.display="block";
+
+        // }
+        
+        
+    });
+    </script>
+    
+
+
+
+

@@ -28,7 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
+TIME_ZONE = 'Asia/Kolkata'
+USE_TZ = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -69,6 +70,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'adminside.context_processors.low_stock_count',
+                'adminside.context_processors.inventory_items_context',
             ],
         },
     },

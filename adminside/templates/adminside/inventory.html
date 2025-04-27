@@ -11,7 +11,7 @@
     <h3>INVENTORY</h3>
 
     <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search by food-item name">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by food-item name" onkeyup="toggleSearch()">
       <button class="search-btn" onclick="toggleSearch()">
         <i class="fa fa-search"></i>
       </button>
@@ -143,8 +143,8 @@
           <th>Quantity</th>
           <th>Cost Price</th>
           <th>Selling Price</th>
-          <th>MFG Date</th>
-          <th>Expiry Date</th>
+          <!-- <th>MFG Date</th>
+          <th>Expiry Date</th> -->
           <th>Action</th>
         </tr>
       </thead>
@@ -157,8 +157,8 @@
               <td>{{food_items.quantity}}</td>
               <td>{{food_items.cost_price}}</td>
               <td>{{food_items.sell_price}}</td>
-              <td>{{food_items.mfg_date}}</td>
-              <td>{{food_items.exp_date}}</td>
+              <!-- <td>{{food_items.mfg_date}}</td>
+              <td>{{food_items.exp_date}}</td> -->
               <td class="action-buttons">
                 <button class="update-btn" onclick="openUpdateForm('{{food_items.id}}')">     <!--('{{ food_items.img.url }}','{{food_items.id}}','{{food_items.food_item_name}}','{{food_items.category}}','{{food_items.quantity}}','{{food_items.description}}','{{food_items.cost_price}}','{{food_items.sell_pricee}}','{{food_items.mfg_date|date}}','{{food_items.exp_date}}' -->
                      <i class="fas fa-edit"></i>     
@@ -178,3 +178,25 @@
 </div>
 
 <script src="{% static 'js/inventory_scripts.js' %}"></script>
+<script>
+function toggleSearch() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const table = document.querySelector(".fooditem-detail-table tbody");
+  const rows = table.getElementsByTagName("tr");
+
+  for (let i = 0; i < rows.length; i++) {
+    const nameCell = rows[i].getElementsByTagName("td")[1]; // Name
+    const categoryCell = rows[i].getElementsByTagName("td")[2]; // Category
+
+    const name = nameCell ? nameCell.textContent.toLowerCase() : "";
+    const category = categoryCell ? categoryCell.textContent.toLowerCase() : "";
+
+    if (name.includes(input) || category.includes(input)) {
+      rows[i].style.display = "";
+    } else {
+      rows[i].style.display = "none";
+    }
+  }
+}
+
+</script>

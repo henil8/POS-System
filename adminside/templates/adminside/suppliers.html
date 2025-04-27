@@ -3,20 +3,23 @@
 <title>Suppliers</title>
 {% endblock %}
 {% block css %}
+<link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="{% static 'css/supplier_style.css' %}">
 {% endblock %}
-
+ 
 <div class="food-items-page">
     <div class="food-item-title mt-4">
         <h3>SUPPLIER</h3>
-
+ 
+{% comment %} ADD SUPPLIER {% endcomment %}
+     
         <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search by company or name">
-            <button class="search-btn" onclick="toggleSearch()">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by company or name" onkeyup="toggleSearch()">
+            <button type="button" class="search-btn" onclick="toggleSearch()">
                 <i class="fa fa-search"></i>
             </button>
         </div>
-
+ 
         <button class="open-button add-fooditems-button rounded-3" onclick="openForm()">
             <span class="btn-text">
                 <i class="fa-solid fa-plus plus-icon"></i> Add Supplier
@@ -24,59 +27,165 @@
             <span class="btn-icon"><i class="fa-solid fa-plus plus-icon"></i></span>
         </button>
     </div>
-
+ 
     <div class="overlay" id="overlay" onclick="closeForm()"></div>
     <div class="form-popup" id="myForm">
-        <form id="supplierForm" class="form-container">
+ 
+        <form method="post" id="supplierForm" role="form"  class="form-container">
+            {% csrf_token %}
             <h1 class="mb-3">Add Supplier</h1>
-
+            <input type="hidden" id="SupplierID" name="supplierID" />
             <div class="input-group">
-                <label for="supplierName"><b>Name</b></label>
-                <input type="text" id="supplierName" placeholder="Enter Supplier Name">
+                <label for="supplierName"> <b>Name</b> </label>
+                <input type="text" id="supplierName" name="supplierName" placeholder="Enter Supplier Name">
                 <span class="error-message" id="nameError"></span>
             </div>
             <div class="input-group">
                 <label for="companyName"><b>Company Name</b></label>
-                <input type="text" id="companyName" placeholder="Enter Company Name">
+                <input type="text" id="companyName"  name="companyName" placeholder="Enter Company Name">
                 <span class="error-message" id="companyError"></span>
             </div>
-
+ 
             <div class="input-group">
                 <label for="supplierEmail"><b>Email</b></label>
-                <input type="email" id="supplierEmail" placeholder="Enter Email">
+                <input type="email" id="supplierEmail" name="supplierEmail" placeholder="Enter Email">
                 <span class="error-message" id="emailError"></span>
             </div>
-
+ 
             <div class="input-group">
                 <label for="supplierAddress"><b>Address</b></label>
-                <textarea id="supplierAddress" placeholder="Enter Address"></textarea>
+                <textarea id="supplierAddress" name="supplierAddress" placeholder="Enter Address"></textarea>
                 <span class="error-message" id="addressError"></span>
             </div>
-
+ 
             <div class="input-group">
                 <label for="supplierPhone"><b>Phone</b></label>
-                <input type="text" id="supplierPhone" placeholder="Enter Phone Number">
+                <input type="text" id="supplierPhone" name="supplierPhone" placeholder="Enter Phone Number">
                 <span class="error-message" id="phoneError"></span>
             </div>
-
+ 
             <div class="input-group">
-                <label for="supplierStore"><b>Store</b></label>
-                <select id="supplierStore">
-                    <option value="">Select Store</option>
+                <label for="supplierStore"><b>Branch</b></label>
+                <select id="supplierStore" name="supplierStore">
+                    <option value="">-- Select Branch --</option>
+                    {% for branch in data.branch %}
+                        <option value="{{  branch.area }} ">{{ branch.area }}</option>
+                    {% endfor %}
                 </select>
                 <span class="error-message" id="storeError"></span>
             </div>
-            
+           
             <div class="form-buttons">
                 <button type="submit" class="btn">Add</button>
                 <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
             </div>
+        </form>
+    </div>
+ 
+ 
+ 
+{% comment %} UPDATE SUPPLIER {% endcomment %}
+ 
+  <!-- <div class="overlay" id="updateOverlay" onclick="closeUpdateForm()"></div>
+  <div class="form-popup" id="updateForm">
+      <form method="post" action=" {% url 'adminside:update_supplier' %}" class="form-container" id="formUpdate">
+          {% csrf_token %}
+          <h1 class="mb-3">Update Supplier</h1>
+         
+        <input type="hidden" id="supplierID" name="supplierID" />
+ 
+        <div>
+            <div> <label>Name</label> <input type="text" id="updateName" name="updateName" required />   </div>
+            <div> <label>Company Name</label> <input type="text" id="updateCName" name="updateCName" required /> </div>
+            <div> <label>email</label> <input type="text" id="updateEmail" name="updateEmail" required /> </div>
+            <div> <label>Address</label> <input type="text" id="updateAddress" name="updateAddress" required /> </div>
+            <div> <label>Phone</label> <input type="tel" id="updatePhone" name="updatePhone" required /> </div>
+            <div class="input-group">
+                <label for="supplierStore"><b>Branch</b></label>
+                    <select id="updateStore" name="supplierStore">
+                        <option value="">-- Select Branch --</option>
+                        {% for branch in data.branch %}
+                            <option value="{{  branch.area }} ">{{ branch.area }}</option>
+                        {% endfor %}
+                    </select>
+               <span class="error-message" id="storeError"></span>
+            </div>
+        </div>
+          <div class="form-buttons">
+              <button type="submit" class="btn">Update</button>
+              <button type="button" class="btn cancel" onclick="closeUpdateForm()">Close</button>
+          </div>
+      </form>
+  </div>
+</div> -->
+ 
+
+<div class="overlay" id="updateOverlay" onclick="closeUpdateForm()"></div>
+<div class="form-popup" id="updateForm">
+    <form method="post" action="{% url 'adminside:update_supplier' %}" class="form-container" id="formUpdate">
+        {% csrf_token %}
+        <h1 class="mb-3">Update Supplier</h1>
+        
+        <input type="hidden" id="supplierID" name="supplierID" />
+
+        <div class="form-group">
+          <div>
+            <label>Name</label>
+            <input type="text" id="supplier_name_change" name="updateName" required />
+
+            <label>Company Name</label>
+            <input type="text" id="company_name_change" name="updateCompany" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div>
+            <label>Email</label>
+            <input type="email" id="supplier_email_change" name="update_email" required />
+
+            <label>Address</label>
+            <input type="text" id="address_change" name="update_address" required />
+          </div>
+        </div>
+        <div>
+            <label>Phone No.</label>
+            <input type="tel" id="supplier_phone_change" name="update_phone" required />
+
+
+          <label>Branch</label>
+          <select id="update_branch" name="update_branch">
+            <option value="">-- Select Branch --</option>
+            {% for branch in data.branch %}
+                <option value="{{  branch.area }} ">{{ branch.area }}</option>
+            {% endfor %}
+        </select>
+        </div>
+        <div class="form-buttons">
+            <button type="submit" class="btn">Update</button>
+            <button type="button" class="btn cancel" onclick="closeUpdateForm()">Close</button>
         </div>
     </form>
 </div>
 
+
+
+<div class="overlay" id="deleteOverlay" onclick="closedeleteForm()"></div>
+<div class="form-popup" id="deleteForm">
+  <form method="post" action="{% url 'adminside:delete_supplier' %}" class="form-container" id="FormDelete"  >
+    {% csrf_token %}
+    <h3 align="center">
+      Are you sure you want to delete?
+    </h3>
+    <input type="hidden" id="SupID" name="SupID" />
+      <div class="form-buttons">
+          <button type="submit" class="btn">Delete</button>
+          <button type="button" class="btn cancel" onclick="closedeleteForm()">Cancel</button>
+      </div>
+  </form>
+</div>
+
 <div class="table-responsive">
-    <table class="table fooditem-detail-table">
+    <table class="table fooditem-detail-table th">
         <thead>
             <tr>
                 <th>ID</th>
@@ -85,13 +194,66 @@
                 <th>Email</th>
                 <th>Address</th>
                 <th>Phone</th>
-                <th>Store</th>
+                <th>Branch</th>
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="supplierTableBody"></tbody>
+        <tbody>
+       
+            {% for supplier in data.suppliers %}
+            <tr>
+                <td>{{ supplier.id }}</td>
+                <td>{{ supplier.supplier_name }}</td>
+                <td>{{ supplier.company_name }}</td>
+                <td>{{ supplier.supplier_email}}</td>
+                <td>{{ supplier.address }}</td>
+                <td>{{ supplier.supplier_phone }}</td>
+                <td>{{ supplier.branch }}</td>
+                <td class="action-buttons">                  
+                  <button class="update-btn" onclick="openUpdateForm('{{ supplier.id }}', '{{ supplier.supplier_name }}', '{{ supplier.company_name }}', '{{ supplier.supplier_email}}',
+                   '{{ supplier.address }}', '{{ supplier.supplier_phone }}', '{{ supplier.branch }}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+
+                  <button class="delete-btn" onclick="sureform('{{ supplier.id }}')">
+                
+                    <i class="fas fa-trash"></i></button>
+             
+                  
+   
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No Supplier found.</td>
+            </tr>
+            {% endfor %}      
+          </tbody>
     </table>
 </div>
 </div>
-
+ 
 <script src="{% static 'js/supplier_scripts.js' %}"></script>
+
+<script>
+
+function toggleSearch() {
+    let input = document.getElementById("searchInput");
+    let filter = input.value.toLowerCase();
+    let table = document.querySelector(".fooditem-detail-table");
+    let rows = table.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+        const name = row.cells[1]?.textContent.toLowerCase() || "";
+        const company = row.cells[2]?.textContent.toLowerCase() || "";
+
+        if (name.includes(filter) || company.includes(filter)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+</script>
+
+ 

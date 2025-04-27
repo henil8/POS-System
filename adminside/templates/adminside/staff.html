@@ -2,102 +2,142 @@
 <title>Staff</title>
 {% endblock %} {% block css %}
 <link rel="stylesheet" href="{% static 'css/staff_style.css' %}" />
+
+<style>
+
+.tab-container {
+  display: flex;
+  gap: 10px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.tab-btn:hover {
+  background-color: #dcdcdc;
+}
+.active-tab {
+  background-color: #007bff;
+  color: white;
+}
+</style>
 {% endblock %}
 
-<div class="staff-page">
-  <div class="staff-title mt-4">
-    <h3>STAFF</h3>
 
-    <div class="search-container">
-      <input
-        type="text"
-        id="searchInput"
-        class="search-input"
-        placeholder="Search by name"
-      />
-      <button class="search-btn" onclick="toggleSearch()">
-        <i class="fa fa-search"></i>
-      </button>
-    </div>
-
-    <button class="open-button add-staff-button rounded-3" onclick="openForm()">
-      <span class="btn-text">
-        <i class="fa-solid fa-plus plus-icon"></i> Add Staff
-      </span>
-      <span class="btn-icon"><i class="fa-solid fa-plus plus-icon"></i></span>
-    </button>
-  </div>
-
-  <div class="overlay" id="overlay"></div>
-  <div class="form-popup" id="myForm">
-    <form method='post' action="{% url 'adminside:staff' %}" id="staffForm" class="form-container">
-      {% csrf_token %}
-      <h1 class="mb-3">Add Staff</h1>
-      <input type="hidden" id="formHasErrors" value="{% if data.form.errors %}true{% else %}false{% endif %}">
-       
-      {% if messages %}
-           {% for message in messages %}
-              {{message}}
-           {% endfor %}
-      {% endif %}
-
-        <!-- {{ data.form.as_p }} -->
+<div class="tab-container mb-4">
+  <button class="tab-btn active-tab" id="tab-staff" onclick="switchPage('staffPage')">Staff Management</button>
+  <button class="tab-btn" id="tab-log" onclick="switchPage('logPage')">Activity Logs</button>
+</div>
 
 
-        <div class="mb-3">
-           <label for="{{data.form.first_name.id_for_label}}">First Name:</label>
-           <input type="text" name="{{data.form.first_name.name}}" class="form-control" value="{{data.form.first_name.value|default_if_none:''}}">
-           <span class="text-danger">{{data.form.first_name.errors}}</span>
+<div id="staffPage">
+    <div class="staff-page">
+      <div class="staff-title mt-4">
+        <h3>STAFF</h3>
+          
+      
+
+        <div class="search-container">
+        
+         
+        
+
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search by name"
+            onkeyup="toggleSearch()"
+          />
+          <button class="search-btn" onclick="toggleSearch()">
+            <i class="fa fa-search"></i>
+          </button>
         </div>
 
-        <div class="mb-3">
-          <label for="{{data.form.last_name.id_for_label}}" >Last Name:</label>
-          <input type="text" name="{{data.form.last_name.name}}" class="form-control" value="{{data.form.last_name.value|default_if_none:''}}">
-          <span class="text-danger">{{data.form.last_name.errors}}</span>
-       </div>
-
-       <div class="mb-3">
-        <label for="{{data.form.email.id_for_label}}">Email Address:</label>
-        <input type="text" name="{{data.form.email.name}}" class="form-control" value="{{data.form.email.value|default_if_none:''}}">
-        <span class="text-danger">{{data.form.email.errors}}</span>
+        <button class="open-button add-staff-button rounded-3" onclick="openForm()">
+          <span class="btn-text">
+            <i class="fa-solid fa-plus plus-icon"></i> Add Staff
+          </span>
+          <span class="btn-icon"><i class="fa-solid fa-plus plus-icon"></i></span>
+        </button>
       </div>
 
-       <div class="mb-3">
-        <label for="{{data.form.role.id_for_label}}">Role:</label>
-        <input type="text" name="{{data.form.role.name}}" class="form-control" value="{{data.form.role.value|default_if_none:''}}">
-        <span class="text-danger">{{data.form.role.errors}}</span>
-      </div>
+      <div class="overlay" id="overlay"></div>
+      <div class="form-popup" id="myForm">
+        <form method='post' action="{% url 'adminside:staff' %}" id="staffForm" class="form-container">
+          {% csrf_token %}
+          <h1 class="mb-3">Add Staff</h1>
+          <input type="hidden" id="formHasErrors" value="{% if data.form.errors %}true{% else %}false{% endif %}">
+          
+          {% if messages %}
+              {% for message in messages %}
+                  {{message}}
+              {% endfor %}
+          {% endif %}
 
-      <div class="mb-3">
-        <label for="{{data.form.phone_no.id_for_label}}" >Phone no.:</label>
-        <input type="text" name="{{data.form.phone_no.name}}" class="form-control" value="{{data.form.phone_no.value|default_if_none:''}}">
-        <span class="text-danger">{{data.form.phone_no.errors}}</span>
-      </div>
+            <!-- {{ data.form.as_p }} -->
 
 
-      <div class="mb-3">
-        <label for="{{data.form.branch.id_for_label}}">Branch:</label>
-        {{ data.form.branch }}
-        <span class="text-danger">{{data.form.branch.errors}}</span>
-      </div>
+            <div class="mb-3">
+              <label for="{{data.form.first_name.id_for_label}}">First Name:</label>
+              <input type="text" name="{{data.form.first_name.name}}" class="form-control" value="{{data.form.first_name.value|default_if_none:''}}">
+              <span class="text-danger">{{data.form.first_name.errors}}</span>
+            </div>
 
-      <div class="mb-3">
-        <label for="{{data.form.username.id_for_label}}" >Username:</label>
-        <input type="text" name="{{data.form.username.name}}" class="form-control" value="{{data.form.username.value|default_if_none:''}}">
-        <span class="text-danger">{{data.form.username.errors}}</span>
-      </div>
+            <div class="mb-3">
+              <label for="{{data.form.last_name.id_for_label}}" >Last Name:</label>
+              <input type="text" name="{{data.form.last_name.name}}" class="form-control" value="{{data.form.last_name.value|default_if_none:''}}">
+              <span class="text-danger">{{data.form.last_name.errors}}</span>
+          </div>
 
-      <div class="mb-3">
-        <label for="{{data.form.password1.id_for_label}}" >Password:</label>
-        <input type="password" name="{{data.form.password1.name}}" class="form-control" value="{{data.form.password1.value|default_if_none:''}}">
-        <span class="text-danger">{{data.form.password1.errors}}</span>
-      </div>
+          <div class="mb-3">
+            <label for="{{data.form.email.id_for_label}}">Email Address:</label>
+            <input type="text" name="{{data.form.email.name}}" class="form-control" value="{{data.form.email.value|default_if_none:''}}">
+            <span class="text-danger">{{data.form.email.errors}}</span>
+          </div>
 
-      <div class="mb-3">
-        <label for="{{data.form.password2.id_for_label}}">Confirm Password:</label>
-        <input type="password" name="{{data.form.password2.name}}" class="form-control" value="{{data.form.password2.value|default_if_none:''}}">
-        <span class="text-danger">{{data.form.password2.errors}}</span>
-      </div>
+          <div class="mb-3">
+            <label for="{{data.form.role.id_for_label}}">Role:</label>
+            <input type="text" name="{{data.form.role.name}}" class="form-control" value="{{data.form.role.value|default_if_none:''}}">
+            <span class="text-danger">{{data.form.role.errors}}</span>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{data.form.phone_no.id_for_label}}" >Phone no.:</label>
+            <input type="text" name="{{data.form.phone_no.name}}" class="form-control" value="{{data.form.phone_no.value|default_if_none:''}}">
+            <span class="text-danger">{{data.form.phone_no.errors}}</span>
+          </div>
+
+
+          <div class="mb-3">
+            <label for="{{data.form.branch.id_for_label}}">Branch:</label>
+            {{ data.form.branch }}
+            <span class="text-danger">{{data.form.branch.errors}}</span>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{data.form.username.id_for_label}}" >Username:</label>
+            <input type="text" name="{{data.form.username.name}}" class="form-control" value="{{data.form.username.value|default_if_none:''}}">
+            <span class="text-danger">{{data.form.username.errors}}</span>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{data.form.password1.id_for_label}}" >Password:</label>
+            <input type="password" name="{{data.form.password1.name}}" class="form-control" value="{{data.form.password1.value|default_if_none:''}}">
+            <span class="text-danger">{{data.form.password1.errors}}</span>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{data.form.password2.id_for_label}}">Confirm Password:</label>
+            <input type="password" name="{{data.form.password2.name}}" class="form-control" value="{{data.form.password2.value|default_if_none:''}}">
+            <span class="text-danger">{{data.form.password2.errors}}</span>
+          </div>
 
 
       <!-- Old Form -->
@@ -167,76 +207,162 @@
      
      
 
-      <div class="form-buttons">
-        <button type="submit" class="btn">Add</button>
-        <button type="button" class="btn cancel" onclick="closeForm()">
-          Close
-        </button>
+          <div class="form-buttons">
+            <button type="submit" class="btn">Add</button>
+            <button type="button" class="btn cancel" onclick="closeForm()">
+              Close
+            </button>
+          </div>
+          <span
+            id="defaultImagePath"
+            data-path="{% static 'images/default-profile.jpg'%}"
+            hidden
+          ></span>
+        </form>
       </div>
-      <span
-        id="defaultImagePath"
-        data-path="{% static 'images/default-profile.jpg'%}"
-        hidden
-      ></span>
+
+    <!-- Delete Form -->
+    <div class="overlay" id="deleteOverlay"></div>
+      <div class="form-popup" id="deleteForm">
+    <form method='post' action="{% url 'adminside:delete_staff' %}" id="deleteForm" class="form-container">
+      {% csrf_token %}
+      <h1 class="mb-3" id="formTitle">
+        Are you sure you want to delete?
+      </h1>
+
+      <input type="hidden" name="staff_id" id="staffID">  <!-- Hidden field for staff ID -->
+      
+      
+      <div class="form-buttons">
+          <button type="submit" class="btn">Delete</button>
+          <button type="button" class="btn cancel" onclick="closedeleteForm()">Cancel</button>
+      </div>
     </form>
-  </div>
+    </div>
 
-<!-- Delete Form -->
-<div class="overlay" id="deleteOverlay"></div>
-  <div class="form-popup" id="deleteForm">
-<form method='post' action="{% url 'adminside:delete_staff' %}" id="deleteForm" class="form-container">
-  {% csrf_token %}
-  <h1 class="mb-3" id="formTitle">
-    Are you sure you want to delete?
-  </h1>
+      <div class="table-responsive">
+        <table class="table staff-detail-table">
+          <thead>
+            <tr>
+              <th>Staff ID</th>
+              <th>First Name</th>
+              <th>Last name</th>
+              <th>E-mail</th>
+              <th>StaffRole</th>
+              <th>Branch</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="staffBody">
+            {% for staff in data.staffs %}
+              {% if not staff.is_staff  %}
+                <tr>
+                    <td>{{staff.id}}</td>
+                    <td>{{staff.first_name}}</td>
+                    <td>{{staff.last_name}}</td>
+                    <td>{{staff.email}}</td>
+                    <td>{{staff.role}}</td>
+                    <td>{{staff.branch}}</td>
+                    <td class="action-buttons">
+                  
+                      <button class="delete-btn" onclick="sureform('{{ staff.id }}')">
+                        
+                        <i class="fas fa-trash"></i></button>
 
-  <input type="hidden" name="staff_id" id="staffID">  <!-- Hidden field for staff ID -->
-  
-  
-  <div class="form-buttons">
-      <button type="submit" class="btn">Delete</button>
-      <button type="button" class="btn cancel" onclick="closedeleteForm()">Cancel</button>
-  </div>
-</form>
+                    </td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
 </div>
 
+
+<div id="logPage" style="display: none;">
+  <div class="staff-title mt-4">
+    <h3>STAFF ACTIVITY LOGS</h3>
+  </div>
+
   <div class="table-responsive">
-    <table class="table staff-detail-table">
+    <table class="table log-detail-table">
       <thead>
         <tr>
-          <th>Staff ID</th>
-          <!-- <th>Image</th> -->
-          <th>First Name</th>
-          <th>Last name</th>
-          <th>E-mail</th>
-          <th>StaffRole</th>
-          <th>Branch</th>
-          <th>Action</th>
+          <th>Staff Name</th>
+          <th>Login Time</th>
+          <!-- <th>Total Orders Taken</th> -->
+          <th>Total Sales</th>
         </tr>
       </thead>
-      <tbody id="staffBody">
-        {% for staff in data.staffs %}
-         <tr>
-             <td>{{staff.id}}</td>
-             <!-- <td>{{staff.image}}</td> -->
-             <td>{{staff.first_name}}</td>
-             <td>{{staff.last_name}}</td>
-             <td>{{staff.email}}</td>
-             <td>{{staff.role}}</td>
-             <td>{{staff.branch}}</td>
-             <td class="action-buttons">
-          
-               <button class="delete-btn" onclick="sureform('{{ staff.id }}')">
-                
-                <i class="fas fa-trash"></i></button>
-
-            </td>
-         </tr>
+      <tbody>
+        {% for log in data.staff_details %}
+          {% if not log.staff_name == 'henil' %}
+            <tr>
+              <td>{{ log.staff_name }} </td>
+              <!-- <td>{{ log.staff_name.last_login }}</td> -->
+              <td>{{ log.total_orders }}</td>
+              <td>{{ log.sales }}</td>
+            </tr>
+          {% endif %}
         {% endfor %}
-        
       </tbody>
     </table>
   </div>
 </div>
 
 <script src="{% static 'js/staff_scripts.js' %}"></script>
+<script>
+function switchPage(pageId) {
+  const staffPage = document.getElementById("staffPage");
+  const logPage = document.getElementById("logPage");
+
+  const tabStaff = document.getElementById("tab-staff");
+  const tabLog = document.getElementById("tab-log");
+
+  if (pageId === "staffPage") {
+    staffPage.style.display = "block";
+    logPage.style.display = "none";
+
+    tabStaff.classList.add("active-tab");
+    tabLog.classList.remove("active-tab");
+  } else {
+    staffPage.style.display = "none";
+    logPage.style.display = "block";
+
+    tabStaff.classList.remove("active-tab");
+    tabLog.classList.add("active-tab");
+  }
+}
+
+function toggleSearch() {
+  const input = document.getElementById("searchInput");
+  const filter = input.value.toLowerCase();
+  const table = document.querySelector(".staff-detail-table");
+  const rows = table.querySelectorAll("tbody tr");
+
+  rows.forEach((row) => {
+    const firstName = row.cells[1]?.textContent.toLowerCase() || "";
+    const lastName = row.cells[2]?.textContent.toLowerCase() || "";
+    const role = row.cells[4]?.textContent.toLowerCase() || "";
+
+    // Debugging output:
+    console.log("Checking:", { firstName, lastName, role });
+
+    if (
+      firstName.includes(filter) ||
+      lastName.includes(filter) ||
+      role.includes(filter)
+    ) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+
+
+
+</script>

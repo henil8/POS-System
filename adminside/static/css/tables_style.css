@@ -1,0 +1,183 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+.search-input {
+    width: 200px !important;
+    padding: 8px 12px !important;
+}
+.add-fooditems-button {
+    background-color:#4E598C;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0px 3px auto 30px;
+}
+.add-fooditems-button i {
+    font-size: 14px !important;
+}
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background: #007bff;
+    color: white;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+}
+
+
+/* Form popup styling */
+.form-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    display: none;
+    width:90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.add-table-button {
+    background-color: #28a745 !important; /* Green instead of Bootstrap blue */
+    color: white !important;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.search-container input {
+    width: 250px;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.search-btn {
+    background-color: #F9C784;
+    color: black;
+    border: none;
+    padding: 7px;
+    height: 40px;
+    width: 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.search-btn i {
+    font-size: 15px;
+}
+.btn-icon {
+    display: none;
+}
+/* Form container */
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Form input styling */
+.form-container input,
+.form-container select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Form buttons */
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.form-buttons .btn {
+    width: 48%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-buttons .btn:first-of-type {
+    background: blue;
+    color: white;
+}
+
+.form-buttons .btn.cancel {
+    background: gray;
+    color: white;
+}

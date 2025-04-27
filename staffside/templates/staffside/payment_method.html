@@ -1,0 +1,22 @@
+<h4>Select Payment Method for Table {{ data.table_no }}</h4>
+
+<form method="post" action="{% url 'staffside:final_payment' %}">
+    {% csrf_token %}
+    <input type="hidden" name="table_no" value="{{ data.table_no }}">
+    <input type="hidden" value="{{data.total_price}}" name="total_price">
+    <h3> For Now Only Cash option available, other options available soon</h3>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="method" value="Cash" checked>
+      <label class="form-check-label">Cash</label>
+    </div>
+    <!-- <div class="form-check">
+      <input class="form-check-input" type="radio" name="method" value="UPI">
+      <label class="form-check-label">UPI</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="method" value="Card">
+      <label class="form-check-label">Card</label>
+    </div> -->
+
+    <button class="btn btn-primary mt-3">Finish Payment</button>
+</form>

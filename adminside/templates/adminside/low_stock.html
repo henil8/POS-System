@@ -1,0 +1,21 @@
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-3"><i class="fa fa-exclamation-triangle text-warning"></i> Low Stock Alerts</h3>
+    {% if data.low_stock_items %}
+    <div class="list-group shadow-sm">
+        {% for item in data.low_stock_items %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ item.food_item_name }}</strong><br>
+                <small class="text-muted">{{ item.category }}</small>
+            </div>
+            <span class="badge bg-danger">Qty: {{ item.quantity }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-success">All items are sufficiently stocked! 🎉</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,157 +1,64 @@
 // Toggle search input on small devices
-function toggleSearch() {
-  let searchContainer = document.querySelector(".search-container");
-  let searchInput = document.querySelector(".search-input");
-
-  searchContainer.classList.toggle("active");
-  if (searchContainer.classList.contains("active")) {
-    searchInput.focus();
-  }
-}
-
-// Search function
-document.getElementById("searchInput").addEventListener("keyup", function () {
-  let filter = this.value.toLowerCase();
-  let rows = document.querySelectorAll("#customerBody tr");
-
-  rows.forEach(function (row) {
-    let firstName = row.cells[1].textContent.toLowerCase();
-    let lastName = row.cells[2].textContent.toLowerCase();
-
-    if (firstName.includes(filter) || lastName.includes(filter)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-});
-
 document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("customerForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      if (validateForm()) {
-        addCustomer();
-      }
+  const searchInput = document.getElementById("searchInput");
+
+  if (searchInput) {
+    searchInput.addEventListener("keyup", function () {
+      let filter = this.value.toLowerCase();
+      let rows = document.querySelectorAll("#customerBody tr");
+
+      rows.forEach(function (row) {
+        let name = row.cells[0]?.textContent.toLowerCase() || "";
+        let phone = row.cells[1]?.textContent.toLowerCase() || "";
+        if (name.includes(filter) || phone.includes(filter)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
     });
+  }
 });
 
-function validateForm() {
-  let email = document.getElementById("email");
-  let phoneNo = document.getElementById("phoneNo");
+// Toggle search input visibility on small devices
 
-  let emailValue = email.value.trim();
-  let phoneNoValue = phoneNo.value.trim();
+function openUpdateForm(id, name,phone_no,email) {
 
-  // Regular expressions for validation
-  let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Valid email format
-  let phoneNoRegex = /^(?:\+91[-\s]?)?[6-9]\d{9}$/;
+  document.getElementById("update_id").value = id;
+  document.getElementById("update_name").value = name;
+  document.getElementById("update_phone_no").value = phone_no;
+  document.getElementById("update_email").value = email;
 
-  // Remove previous error messages
-  removeError(email);
-  removeError(phoneNo);
 
-  let isValid = true;
-
-  // Email Validation
-  if (!emailRegex.test(emailValue)) {
-    showError(email, "Enter a valid email (e.g., user@example.com)");
-    isValid = false;
-  }
-
-  // Password Validation
-  if (!phoneNoRegex.test(phoneNoValue)) {
-    showError(
-      phoneNo,
-      "Invalid Phone Format.Phone number must be 10 digits & start with 6-9 (e.g., 9876543210)"
-    );
-    isValid = false;
-  }
-
-  return isValid;
+  document.getElementById("overlay-update").style.display = "block";
+  document.getElementById("updateFormPopup").style.display = "block";
 }
 
-// Function to display error messages
-function showError(input, message) {
-  let errorSpan = document.createElement("span");
-  errorSpan.classList.add("error-message");
-  errorSpan.style.color = "red";
-  errorSpan.style.fontSize = "12px";
-  errorSpan.innerText = message;
-  input.parentNode.appendChild(errorSpan);
-}
-
-// Function to remove previous error messages
-function removeError(input) {
-  let error = input.parentNode.querySelector(".error-message");
-  if (error) {
-    error.remove();
-  }
-}
-
-function addCustomer() {
-  if (!validateForm()) {
-    return; // STOP adding data if validation fails
-  }
-
-  let table = document.getElementById("customerBody");
-  let rowCount = table.rows.length + 1;
-
-  let firstName = document.getElementById("firstName").value;
-  let lastName = document.getElementById("lastName").value;
-  let address = document.getElementById("address").value;
-  let phoneNo = document.getElementById("phoneNo").value;
-  let email = document.getElementById("email").value;
-  let gender = document.getElementById("gender").value;
-
-  let newRow = document.createElement("tr");
-  newRow.innerHTML = `
-        <td>${rowCount}</td>
-        <td>${firstName}</td>
-        <td>${lastName}</td>
-        <td>${address}</td>
-        <td>${phoneNo}</td>
-        <td>${email}</td>
-        <td>${gender}</td>
-        <td class="action-buttons">
-            <button class="update-btn" onclick="updateRow(this)"><i class="fas fa-edit"></i></button>
-            <button class="delete-btn" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
-        </td>
-    `;
-  document.getElementById("customerBody").appendChild(newRow);
-
-  document.getElementById("customerForm").reset();
-  closeForm();
-}
-
-function updateRow(button) {
-  let row = button.closest("tr");
-  let columns = row.getElementsByTagName("td");
-
-  document.getElementById("firstName").value = columns[1].innerText;
-  document.getElementById("lastName").value = columns[2].innerText;
-  document.getElementById("address").value = columns[3].innerText;
-  document.getElementById("phoneNo").value = columns[4].innerText;
-  document.getElementById("email").value = columns[5].innerText;
-  document.getElementById("gender").value = columns[6].innerText;
-
-  openForm();
-  row.remove(); // Remove the row before re-adding updated data
-}
-
-function deleteRow(button) {
-  button.closest("tr").remove();
+function closeUpdateForm() {
+  document.getElementById("overlay-update").style.display = "none";
+  document.getElementById("updateFormPopup").style.display = "none";
 }
 
 function openForm() {
-  document.getElementById("overlay").style.display = "block";
+  document.getElementById("purchaseForm").reset();
   document.getElementById("myForm").style.display = "block";
-  document.body.classList.add("popup-open");
+  document.getElementById("overlay").style.display = "block";
 }
-
 function closeForm() {
   document.getElementById("overlay").style.display = "none";
   document.getElementById("myForm").style.display = "none";
   document.body.classList.remove("popup-open");
+    
+  // Reset update index when closing the form
+}
+
+function openDeleteForm(id) {
+  document.getElementById("delete_id").value = id;
+  document.getElementById("overlay-delete").style.display = "block";
+  document.getElementById("deleteFormPopup").style.display = "block";
+}
+
+function closeDeleteForm() {
+  document.getElementById("overlay-delete").style.display = "none";
+  document.getElementById("deleteFormPopup").style.display = "none";
 }

@@ -305,157 +305,181 @@ function toggleSearch() {
   });
 
 
+ // Stores the row reference for update
+  
 
-  let ID = 1;
-  let updateIndex = null; // Stores the row reference for update
-  
-  document.addEventListener("DOMContentLoaded", function () {
-    // Handle form submission
-    document.getElementById("purchaseForm").addEventListener("submit", function (event) {
-      event.preventDefault();
-      if (updateIndex !== null) {
-        saveUpdatedStore(); // Update existing row
-      } else {
-        addpurchases(); // Add new row
-      }
-    });
-  
-    populateStaticDropdowns();
-  });
   
   // Populate status dropdown
-  function populateStaticDropdowns() {
-    let statuss = ["Done", "Remain"];
-    let statusDropdown = document.getElementById("status");
-    statuss.forEach(status => {
-      let option = document.createElement("option");
-      option.value = status;
-      option.textContent = status;
-      statusDropdown.appendChild(option);
-    });
-  }
+  // function populateStaticDropdowns() {
+  //   let statuss = ["Done", "Remain"];
+  //   let statusDropdown = document.getElementById("status");
+  //   statuss.forEach(status => {
+  //     let option = document.createElement("option");
+  //     option.value = status;
+  //     option.textContent = status;
+  //     statusDropdown.appendChild(option);
+  //   });
+  // }
   
   // Function to add a new purchase
-  function addpurchases() {
-    let foodItem = document.getElementById("foodItem").value.trim();
-    let quantity = document.getElementById("quantity").value.trim();
-    let cost = document.getElementById("cost").value.trim();
-    let SupID = document.getElementById("SupID").value.trim();
-    let purchaseDate = document.getElementById("purchaseDate").value.trim();
-    let status = document.getElementById("status").value;
+  // function addpurchases() {
+  //   let foodItem = document.getElementById("foodItem").value.trim();
+  //   let quantity = document.getElementById("quantity").value.trim();
+  //   let cost = document.getElementById("cost").value.trim();
+  //   let SupID = document.getElementById("SupID").value.trim();
+  //   let purchaseDate = document.getElementById("purchaseDate").value.trim();
+  //   let status = document.getElementById("status").value;
   
     // Validation to ensure no empty fields
-    if (!foodItem || !quantity || !cost || !SupID || !purchaseDate || !status) {
-      alert("Please fill in all required fields.");
-      return;
-    }
+    // if (!foodItem || !quantity || !cost || !SupID || !purchaseDate || !status) {
+    //   alert("Please fill in all required fields.");
+    //   return;
+    // }
   
-    let newRow = document.createElement("tr");
-    newRow.innerHTML = `
-      <td>${ID}</td>
-      <td>${foodItem}</td>
-      <td>${quantity}</td>
-      <td>${cost}</td>
-      <td>${SupID}</td>
-      <td>${purchaseDate}</td>
-      <td>${status}</td>
-      <td class="action-buttons">
-          <button class="update-btn" onclick="updateRow(this)"><i class="fas fa-edit"></i></button>
-          <button class="delete-btn" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
-      </td>
-    `;
+    // let newRow = document.createElement("tr");
+    // newRow.innerHTML = `
+    //   <td>${ID}</td>
+    //   <td>${foodItem}</td>
+    //   <td>${quantity}</td>
+    //   <td>${cost}</td>
+    //   <td>${SupID}</td>
+    //   <td>${purchaseDate}</td>
+    //   <td>${status}</td>
+    //   <td class="action-buttons">
+    //       <button class="update-btn" onclick="updateRow(this)"><i class="fas fa-edit"></i></button>
+    //       <button class="delete-btn" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
+    //   </td>
+    // `;
   
-    document.getElementById("purchaseTableBody").appendChild(newRow);
-    ID++; // Increment the ID for the next row
-    document.getElementById("purchaseForm").reset(); // Reset the form fields
-    closeForm(); // Close the form popup after adding the row
-  }
+    // document.getElementById("purchaseTableBody").appendChild(newRow);
+    // ID++; // Increment the ID for the next row
+    // document.getElementById("purchaseForm").reset(); // Reset the form fields
+    // closeForm(); // Close the form popup after adding the row
+  // }
   
   // Function to update a row
-  function updateRow(button) {
-    let row = button.closest("tr");
-    let columns = row.getElementsByTagName("td");
+  // function updateRow(button) {
+  //   let row = button.closest("tr");
+  //   let columns = row.getElementsByTagName("td");
   
-    document.getElementById("foodItem").value = columns[1].textContent;
-    document.getElementById("quantity").value = columns[2].textContent;
-    document.getElementById("cost").value = columns[3].textContent;
-    document.getElementById("SupID").value = columns[4].textContent;
-    document.getElementById("purchaseDate").value = columns[5].textContent;
-    document.getElementById("status").value = columns[6].textContent;
+  //   document.getElementById("foodItem").value = columns[1].textContent;
+  //   document.getElementById("quantity").value = columns[2].textContent;
+  //   document.getElementById("cost").value = columns[3].textContent;
+  //   document.getElementById("SupID").value = columns[4].textContent;
+  //   document.getElementById("purchaseDate").value = columns[5].textContent;
+  //   document.getElementById("status").value = columns[6].textContent;
   
-    updateIndex = row; // Store reference to the row for updating
+  //   updateIndex = row; // Store reference to the row for updating
   
-    openForm(true);
-  }
+  //   openForm(true);
+  // }
   
-  function resetForm() {
-    document.getElementById("purchaseForm").reset(); // Resets all input fields
-  }
+  // function resetForm() {
+  //   document.getElementById("purchaseForm").reset(); // Resets all input fields
+  // }
  
 
 
   // Function to save the updated store details
-  function saveUpdatedStore() {
-    if (updateIndex) {
-      let foodItem = document.getElementById("foodItem").value;
-      let quantity = document.getElementById("quantity").value;
-      let cost = document.getElementById("cost").value;
-      let SupID = document.getElementById("SupID").value;
-      let purchaseDate = document.getElementById("purchaseDate").value;
-      let status = document.getElementById("status").value;
+//   function saveUpdatedStore() {
+//     if (updateIndex) {
+//       let foodItem = document.getElementById("foodItem").value;
+//       let quantity = document.getElementById("quantity").value;
+//       let cost = document.getElementById("cost").value;
+//       let SupID = document.getElementById("SupID").value;
+//       let purchaseDate = document.getElementById("purchaseDate").value;
+//       let status = document.getElementById("status").value;
   
-      updateIndex.cells[1].textContent = foodItem;
-      updateIndex.cells[2].textContent = quantity;
-      updateIndex.cells[3].textContent = cost;
-      updateIndex.cells[4].textContent = SupID;
-      updateIndex.cells[5].textContent = purchaseDate;
-      updateIndex.cells[6].textContent = status;
+//       updateIndex.cells[1].textContent = foodItem;
+//       updateIndex.cells[2].textContent = quantity;
+//       updateIndex.cells[3].textContent = cost;
+//       updateIndex.cells[4].textContent = SupID;
+//       updateIndex.cells[5].textContent = purchaseDate;
+//       updateIndex.cells[6].textContent = status;
   
-      updateIndex = null; // Reset after update
-      document.getElementById("purchaseForm").reset();
-      closeForm();
-    }
-  }
+//       updateIndex = null; // Reset after update
+//       document.getElementById("purchaseForm").reset();
+//       closeForm();
+//     }
+//   }
 
-function deleteRow(button) {
-  button.closest("tr").remove();
-}
+// function deleteRow(button) {
+//   button.closest("tr").remove();
+// }
 
-function showError(input, message) {
-  let errorSpan = document.createElement("span");
-  errorSpan.classList.add("error-message");
-  errorSpan.style.color = "red";  
-  errorSpan.style.fontSize = "12px";
-  errorSpan.innerText = message;
-  input.parentNode.appendChild(errorSpan);
-}
+// function showError(input, message) {
+//   let errorSpan = document.createElement("span");
+//   errorSpan.classList.add("error-message");
+//   errorSpan.style.color = "red";  
+//   errorSpan.style.fontSize = "12px";
+//   errorSpan.innerText = message;
+//   input.parentNode.appendChild(errorSpan);
+// }
 
-function removeError(input) {
-  let error = input.parentNode.querySelector(".error-message");
-  if (error) {
-    error.remove();
-  }
-}
+// function removeError(input) {
+//   let error = input.parentNode.querySelector(".error-message");
+//   if (error) {
+//     error.remove();
+//   }
+// }
 
 // function openForm() {
 //   document.getElementById("overlay").style.display = "block";
 //   document.getElementById("myForm").style.display = "block";
 //   document.body.classList.add("popup-open");
 // }
-function openForm(isUpdate = false) {
-  document.getElementById("overlay").style.display = "block";
-  document.getElementById("myForm").style.display = "block";
-  document.body.classList.add("popup-open");
 
-  if (!isUpdate) {
-      resetForm();  // Clears the form ONLY when adding a new chain
-      updateIndex = null; // Clear any previous update reference
+
+function openUpdateForm(id, food_item, quantity, cost_price, supplier, phone, date, status) {
+  console.log("Raw date input:", date);  // 👈 Add this line
+
+  let formattedDate = "";
+  try {
+    formattedDate = new Date(date).toISOString().split('T')[0];
+  } catch (error) {
+    console.error("Date format error:", error);
   }
+
+  console.log("Formatted date:", formattedDate);  // 👈 Debugging output
+
+  document.getElementById("update_id").value = id;
+  document.getElementById("update_food_item").value = food_item;
+  document.getElementById("update_quantity").value = quantity;
+  document.getElementById("update_cost_price").value = cost_price;
+  document.getElementById("update_supplier").value = supplier;
+  document.getElementById("update_phone").value = phone;
+  document.getElementById("update_date").value = formattedDate;
+  document.getElementById("update_status").value = status;
+
+  document.getElementById("overlay-update").style.display = "block";
+  document.getElementById("updateFormPopup").style.display = "block";
+}
+
+function closeUpdateForm() {
+  document.getElementById("overlay-update").style.display = "none";
+  document.getElementById("updateFormPopup").style.display = "none";
+}
+
+function openForm() {
+  document.getElementById("purchaseForm").reset();
+  document.getElementById("myForm").style.display = "block";
+  document.getElementById("overlay").style.display = "block";
 }
 function closeForm() {
   document.getElementById("overlay").style.display = "none";
   document.getElementById("myForm").style.display = "none";
   document.body.classList.remove("popup-open");
     
-  updateIndex = null; // Reset update index when closing the form
+  // Reset update index when closing the form
+}
+
+function openDeleteForm(id) {
+  document.getElementById("delete_id").value = id;
+  document.getElementById("overlay-delete").style.display = "block";
+  document.getElementById("deleteFormPopup").style.display = "block";
+}
+
+function closeDeleteForm() {
+  document.getElementById("overlay-delete").style.display = "none";
+  document.getElementById("deleteFormPopup").style.display = "none";
 }

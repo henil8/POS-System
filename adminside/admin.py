@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm,UserChangeForm
-from .models import Inventory,Branch,Purchase,CustomUser,Categories
+from .models import Inventory,Branch,CustomUser,Categories,Tables,Purchase,Supplier
 
 # Register your models here.
 class BranchAdmin(admin.ModelAdmin):
@@ -11,7 +11,7 @@ admin.site.register(Branch, BranchAdmin)
 
 
 class PurchaseAdmin(admin.ModelAdmin):
-  list_display = ("food_item_id", "food_item", "cost_price","supplier_id","purchased_date","payment_status")
+  list_display = ( "id","food_item","quantity", "cost_price","supplier_company_Person","phone_no","purchased_date","payment_status")
   
 admin.site.register(Purchase, PurchaseAdmin)
 
@@ -20,11 +20,20 @@ class InventoryAdmin(admin.ModelAdmin):
   
 admin.site.register(Inventory, InventoryAdmin)
 
+class SupplierAdmin(admin.ModelAdmin):
+  list_display = ( "supplier_name","company_name", "supplier_email","supplier_phone","address","branch")
+  
+admin.site.register(Supplier, SupplierAdmin)
+
 class CategoryAdmin(admin.ModelAdmin):
   list_display = ("id", "category_name", "status")
   
 admin.site.register(Categories, CategoryAdmin)
 
+class TablesAdmin(admin.ModelAdmin):
+  list_display = ("id", "table_id","seats", "status")
+  
+admin.site.register(Tables, TablesAdmin)
 
 class CustomUserAdmin(UserAdmin):   
    add_form=UserCreationForm

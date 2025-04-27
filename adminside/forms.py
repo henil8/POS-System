@@ -1,7 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import PasswordChangeForm,UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm,UserCreationForm,UserChangeForm
 from django.contrib.auth.models import User
-from .models import CustomUser,Inventory
+from .models import CustomUser,Inventory,Purchase
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Submit
 # from .models import Profile
@@ -91,3 +91,49 @@ class InventoryForm(forms.ModelForm):
             'mfg_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'exp_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         } 
+
+class PurchaseForm(forms.ModelForm):
+    class Meta:
+        model = Purchase
+        fields = ("food_item", "quantity", "cost_price", "supplier_company_Person", "phone_no", "purchased_date", "payment_status")
+        widgets = {
+            "food_item": forms.TextInput(attrs={'class': 'form-control'}),
+            "quantity": forms.TextInput(attrs={'type': 'text', 'class': 'form-control', 'placeholder': 'e.g. 20kg'}),
+            "cost_price": forms.NumberInput(attrs={'class': 'form-control'}),
+            "supplier_company_Person": forms.TextInput(attrs={'class': 'form-control'}),
+            "phone_no": forms.TextInput(attrs={'class': 'form-control'}),
+            "purchased_date": forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            "payment_status": forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class UpatePasswordForm(PasswordChangeForm):
+    class Meta:
+        model=CustomUser
+        fields=('old_password','new_password1','new_password2')
+        widgets = {
+            'old_password': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'new_password1': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'new_password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
+
+class UpdateUserForm(UserChangeForm):
+    password=None
+    class Meta:
+        model=CustomUser
+        fields=('first_name','last_name','email','role','phone_no','branch')
+        widgets = {
+            'role': forms.TextInput(attrs={'class': 'form-control'}),
+            'branch': forms.Select(attrs={'class': 'form-control'}),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('username'),
+            Field('email'),
+            Field('first_name'),
+            Field('last_name'),
+            Submit('submit', 'Register', css_class='btn btn-primary')
+        )

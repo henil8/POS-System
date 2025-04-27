@@ -11,61 +11,98 @@
 {% endblock %}
 
 <div class="staff-page">
+  <!-- <div class="container mt-5">
+    <div class="card shadow-lg rounded-4 p-4">
+      <div class="card-body"> -->
   <div class="staff-title mt-4">
     <h3>SALES REPORT</h3>
-
+   
     <div class="search-container">
+      <div class="row">
+        <div class="da-box">
+            <form method="post">
+               {% csrf_token %}
+                   
+                <select id="incomeDropdown" class="form-select rounded-3 shadow-sm" name="filter" onchange="this.form.submit()">
+                    <option value="" disabled>Select Option</option>
+                    <option value="default" {% if data.filter == "default" %}selected{% endif %}>All</option>
+                    <option value="MaxQuantitySold" {% if data.filter == "MaxQuantitySold" %}selected{% endif %}>Max Quantity Sold</option>
+                    <option value="MinQuantitySold" {% if data.filter == "MinQuantitySold" %}selected{% endif %}>Min Quantity Sold</option>
+                    <option value="MaxProfitFooditem" {% if data.filter == "MaxProfitFooditem" %}selected{% endif %}>Max Profit Food item</option>
+                    <option value="MinProfitFooditem" {% if data.filter == "MinProfitFooditem" %}selected{% endif %}>Min Profit Food item</option>
+                </select>    
+            </form>
+        </div>
+      </div>
       <input
         type="text"
         id="searchInput"
         class="search-input"
-        placeholder="Search by name"
+        placeholder="Search by food item or category"
+        onkeyup="toggleSearch()"
       />
       <button class="search-btn" onclick="toggleSearch()">
         <i class="fa fa-search"></i>
       </button>
     </div>
-    </form>
   </div>
-  <div class="row">
-    <div class="da-box">
-            <select id="incomeDropdown" class="dropdown">
-                <option value="today">Today</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-            </select>    
-    </div>
-  </div>
+  
     <br>
 
   <table class="table">
     <thead>
         <tr>
-            <th>Product ID</th>
-            <th>Product Name</th>
+            <th> ID</th>
+            <th>Food Item</th>
             <th>Category</th>
-            <th>Quantity</th>          
+            <th>Quantity</th>    
+            <th>Profit</th>       
         </tr>
     </thead>
     <tbody>
-        {% for i in data %}
-        <tr>
-            <td>{{ i.product_id }}</td>
-            <td>{{ i.product_name }}</td>
-            <td>{{ i.calegories }}</td>
-            <td>{{ i.quentity }}</td>
-            
+        
+            {% for i in data.sales_data1 %}
+            <tr>
+                <td>{{ i.item_id }}</td>
+                <td>{{ i.item_name }}</td>
+                <td>{{ i.category }}</td>
+                <td>{{ i.quantity }}</td>
+                <td>{{ i.profit }}</td>
+                
 
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="9">No is data available</td>
-        </tr>
-        {% endfor %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">No is data available</td>
+            </tr>
+            {% endfor %}
     </tbody>
 </table>
 </div>
+<!-- </div>
+</div>
+</div> -->
 <script src="{% static 'js/reports_scripts.js' %}"></script>
 
 
-    
+<script>
+  function toggleSearch() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const table = document.querySelector(".table");
+    const rows = table.getElementsByTagName("tr");
+  
+    // Loop through all table rows (except header row at index 0)
+    for (let i = 1; i < rows.length; i++) {
+      const foodItem = rows[i].cells[1]?.textContent.toLowerCase() || "";
+      const category = rows[i].cells[2]?.textContent.toLowerCase() || "";
+  
+      if (foodItem.includes(filter) || category.includes(filter)) {
+        rows[i].style.display = "";
+      } else {
+        rows[i].style.display = "none";
+      }
+    }
+  }
+  </script>
+  

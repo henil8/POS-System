@@ -1,0 +1,291 @@
+{% load multiply_filters %}
+<html>
+<head>
+
+    <style>
+        /* Screen Styles */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #receipt-print {
+            display: none;
+            /* Hide on screen */
+        }
+
+        /* Print Styles */
+        @media print {
+            /* body * {
+                display: none !important;
+            } */
+
+            #receipt-print,
+            #receipt-print * {
+                display: block !important;
+                /* Show only receipt */
+            }
+
+            #receipt-print {
+                position: static !important;
+                width: 58mm;
+                margin: 0 auto;
+                padding: 10px;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 12px;
+                background: white;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                padding: 2px 0;
+                text-align: left;
+            }
+
+            .center {
+                text-align: center;
+            }
+
+            .bold {
+                font-weight: bold;
+            }
+
+            .line {
+                border-top: 1px dashed #000;
+                margin: 5px 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+
+
+        /* @media print {
+    body * {
+        visibility: hidden;
+    }
+    #bill-content, #bill-content * {
+        visibility: visible;
+    }
+    #bill-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        font-family: 'Courier New', Courier, monospace;
+    }
+} */
+    </style>
+
+<script>
+    function printReceipt() {
+        const receiptContent = document.getElementById("receipt-print").innerHTML;
+        const printWindow = window.open('', '_blank', 'width=400,height=800');
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Print Receipt</title>
+                <style>
+                    @media print {
+                        @page {
+                            size: 58mm auto;
+                            margin: 0;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                        }
+                    }
+
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: 12px;
+                        width: 58mm;
+                        margin: 0 auto;
+                        padding: 10px;
+                        background: white;
+                    }
+
+                    .center {
+                        text-align: center;
+                    }
+
+                    .bold {
+                        font-weight: bold;
+                    }
+
+                    .line {
+                        border-top: 1px dashed #000;
+                        margin: 5px 0;
+                    }
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+
+                    td {
+                        padding: 2px 0;
+                        vertical-align: top;
+                    }
+                </style>
+            </head>
+            <body>
+                ${receiptContent}
+                <script>
+                    setTimeout(() => {
+                        window.print();
+                    }, 300);
+                <\/script>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+    }
+</script>
+
+
+
+</head>
+
+
+<body>
+    <div id="bill-content" class="container bg-light p-4 rounded shadow mt-4" style="max-width: 700px;">
+
+        <h3 class="mb-3">🧾 Bill - Table {{ data.table_no }}</h3>
+        <p><strong>Payment Method:</strong> {{ data.method }}</p>
+    
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Item</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in data.orders %}
+                <tr>
+                    <td>{{ order.item_name }}</td>
+                    <td class="text-center">{{ order.quantity }}</td>
+                    <td class="text-end">₹{{ order.price }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="fw-bold">
+                    <td colspan="2" class="text-end">Total</td>
+                    <td class="text-end">₹{{ data.total_price }}</td>
+                </tr>
+            </tbody>
+        </table>
+    
+        <p class="text-success fw-bold my-3">
+            ✅ Payment Completed
+        </p>
+
+        <div class="d-flex gap-3">
+            <!-- <form method="post" action="{% url 'staffside:final_exit' %}">
+                {% csrf_token %} -->
+                <!-- <input type="hidden" name="table_no" value="{{ data.table_no }}">
+                <input type="hidden" name="total_amount" value="{{ data.total_price }}">
+                <input type="hidden" name="method" value="{{ data.method }}"> -->
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirmExitModal">Exit</button>
+            <!-- </form> -->
+    
+            <button class="btn btn-primary no-print" onclick="printReceipt()">Print Receipt</button>
+        </div>
+
+    </div>
+
+
+<!-- Exit Confirmation Modal -->
+<div class="modal fade" id="confirmExitModal" tabindex="-1" aria-labelledby="confirmExitModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmExitModalLabel">Confirm Exit</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to exit ?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          
+          <!-- Actual Submit Button inside Modal -->
+          <form method="post" action="{% url 'staffside:final_exit' %}">
+              {% csrf_token %}
+              <input type="hidden" name="table_no" value="{{ data.table_no }}">
+              <input type="hidden" name="total_amount" value="{{ data.total_price }}">
+              <input type="hidden" name="method" value="{{ data.method }}">
+              <button type="submit" class="btn btn-danger">Yes, Exit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <div id="receipt-print">
+        <div class="center bold" style="font-size: 18px;">RESTAURANT</div>
+        <div class="center">The Food Court,</div>
+        <div class="center">PHONE: +91 2555789056</div>
+        <div class="center">GSTIN: 32IDNAP1991TZ8</div>
+        <div class="center">LOCATION: 123 Main Street, New York, US</div>
+        <div class="line"></div>
+    
+        <h4 class="center bold">Tax Invoice</h4>
+    
+        <p><b>Date:</b> {{ data.date }}</p>
+        <p><b>Payment Mode:</b> {{ data.method }}</p>
+    
+        <table>
+            <thead>
+                <tr style="border-bottom: 1px dashed black;">
+                    <th align="left">Item</th>
+                    <th align="center">Qty</th>
+                    <th align="right">Rate</th>
+                    <th align="right">Amt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in data.orders %}
+                <tr>
+                    <td>{{ order.item_name }}</td>
+                    <td align="center">{{ order.quantity }}</td>
+                    <td align="right">₹{{ order.price }}</td>
+                    <td align="right">₹{{ order.quantity|multiply:order.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <div class="line"></div>
+    
+        <p><b>(Tax Incl) Sub Total:</b> ₹{{ data.total_price }}</p>
+        <p><b>SGST @ {{ data.sgst_percent }}%:</b> ₹{{ data.sgst }}</p>
+        <p><b>CGST @ {{ data.cgst_percent }}%:</b> ₹{{ data.cgst }}</p>
+    
+        <div class="line"></div>
+        <p class="bold" style="font-size: 18px;">Total: ₹{{ data.final_total_anount }}</p>
+        <div class="line"></div>
+    
+        <p class="center">!!! Thank You for dining!!!</p>
+    </div>
+
+
+    
+
+
+
+
+</body>
+
+</html>

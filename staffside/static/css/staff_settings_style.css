@@ -7,7 +7,11 @@ body {
 :root {
     --color: #5e6790;
   }
-
+  .profile-pic-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
 .top-navbar {
     display: flex;
     justify-content: flex-end;

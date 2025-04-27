@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,7 +23,7 @@
 
     <!-- sttings.html css (settings_style.css) -->
     {% block css %}
-    <link rel="stylesheet" href="{% static 'css/settings_style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/staff_settings_style.css' %}" />
     {% endblock %}
 
     <!-- google fonts -->
@@ -36,12 +37,17 @@
   <body>
     <div class="top-navbar">
       <div class="user-info">
-        <!-- <span>{{ request.user.username }}</span> -->
-        <span class="notification"><i class="fa-solid fa-bell"></i></span>
-        <span>{{user.date}}<br />{{user.first_name}}</span>
-        <i class="fa fa-user"></i>
+          <span class="notification"><i class="fa-solid fa-bell"></i></span>
+          <span>{{ user.last_login|localtime|date:"F j, Y" }}<br />{{user.first_name}}</span>
+          <div class="profile-container">
+              {% if request.user.image %}
+                  <img id="profileImage" src="{{request.user.image.url}}" alt="Profile Picture" class="profile-pic" style="width: 80px; height: 80px;    object-fit: cover; border-radius: 50%;">
+              {% else %}
+                  <i class="fa fa-user"></i>
+              {% endif %}
+          </div>
       </div>
-    </div>
+  </div>
 
     <div class="sidebar" id="sidebar">
       <div class="pos-name">
@@ -59,7 +65,7 @@
             <span> Profile</span>
           </a>
         </li>
-        <li>
+        <!-- <li>
           <a
             href="{% url 'staffside:edit_profile' %}"
             class="nav-link {% if request.path == '/edit_profile/' %}active{% endif %}"
@@ -69,8 +75,8 @@
             ></i>
             <span> Edit Profile</span>
           </a>
-        </li>
-        <li>
+        </li>-->
+        <li> 
           <a
             href="{% url 'staffside:change_password' %}"
             class="nav-link {% if request.path == '/change_password/' %}active{% endif %}"

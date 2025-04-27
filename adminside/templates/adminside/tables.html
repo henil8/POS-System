@@ -1,0 +1,397 @@
+{% load static %} {% block title %}
+<title>Chains</title>
+{% endblock %} {% block css %}
+<link rel="stylesheet" href="{% static 'css/branches_style.css' %}" />
+<link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+{% endblock %}
+
+<div class="food-items-page">
+  <div class="food-item-title mt-4">
+    <h3>Tables</h3>
+
+    <div class="search-container">
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search by Table No, Seats or status"
+        onkeyup="toggleSearch()"
+      />
+      <button class="search-btn" onclick="toggleSearch()">
+        <i class="fa fa-search"></i>
+      </button>
+    </div>
+
+    <button
+      class="open-button add-fooditems-button rounded-3"
+      onclick="openForm()"
+    >
+      <span class="btn-text">
+        <i class="fa-solid fa-plus plus-icon"></i>  Add Table
+      </span>
+      <span class="btn-icon"><i class="fa-solid fa-plus plus-icon"></i></span>
+    </button>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="closeForm()"></div>
+  <div class="form-popup" id="myForm">
+    <form method="post"  action="{% url 'adminside:tables' %}" id="tableForm" role="form"  class="form-container">
+      {% csrf_token %}
+      <h1 class="mb-3">Add Table</h1>
+      {% if messages %}
+      <div>
+        {% for message in messages %}
+          {{message}}
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="form-group">
+        <label for="tableID">Table No.</label>
+        <input type="number" id="tableID" name="table_id" required />
+        
+        
+      </div>
+      <div class="form-group">
+ 
+        <label for="seats">Seats</label>
+        <input type="number" id="seats" name="seats" required />
+
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="status" name="status">
+          <option value="Active">Active</option>
+          <option value="Disabled">Disabled</option>
+        </select>
+      </div>
+      <!-- <div class="form-group">
+          <label for="storeArea">Seats</label>
+          <input type="text" id="storeArea" name="storeArea" placeholder="Enter area name" required />
+        
+      </div>
+      
+      <div class="form-group">
+          <label for="storeManager">Status </label>
+          <select id="status" name="status">
+            <option value="">Status</option>
+          </select>
+      </div> -->
+      <!-- <div class="form-group">
+        <div class="input-group">
+          <label for="storeManager">Manager ID </label>
+          <input type="number" id="managerID"  name="managerID" placeholder="Manager name" required/>
+        </div>
+
+        <div class="input-group">
+          <label for="StoreLocation"><b>Phone No.</b></label>
+          <input type="tel" id="PhoneNo" name="PhoneNo" placeholder="Enter Phone No." required/>
+        </div>
+        
+      </div>
+      <p id="message"></p>
+      <div class="form-group">
+        <div class="input-group">
+          <label for="storeManager">Status </label>
+          <select id="status" name="status">
+            <option value="">Status</option>
+          </select>
+        </div>
+      </div> -->
+
+      <div class="form-buttons">
+        <button type="submit" class="btn">Add</button>
+        <button type="button" class="btn cancel" onclick="closeForm()">
+          Close
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Update Form -->
+  <div class="overlay" id="updateOverlay" onclick="closeUpdateForm()"></div>
+<div class="form-popup" id="updateForm">
+    <form method="post" action="{% url 'adminside:update_table' %}" class="form-container" id="formUpdate">
+        {% csrf_token %}
+        <h1 class="mb-3">Update Table</h1>
+        
+        <input type="hidden" id="tabId" name="tabId" />
+
+        <div class="form-group">
+          <div>
+            <label>Table No</label>
+            <input type="text" id="updateTable_id" name="Table_id" required />
+
+            <label>Seats</label>
+            <input type="text" id="updateseats" name="seats" required />
+
+            <label>Status</label>
+            <select id="updatestatus" name="status">
+              <option value="">Select Status</option>
+              <option value="Active">Active</option>
+              <option value="Disabled">Disabled</option>
+          </select>
+          </div>
+        </div>
+
+        <!-- <div class="form-group">
+          <div>
+            <label>Manager ID</label>
+            <input type="number" id="updateManagerID" name="managerID" required />
+
+            <label>Phone No.</label>
+            <input type="tel" id="updatePhoneNo" name="PhoneNo" required />
+          </div>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="updateStatus" name="status">
+            <option value="">Select Status</option>
+            <option value="Open">Open</option>
+            <option value="Close">Close</option>
+        </select>
+        </div> -->
+        <div class="form-buttons">
+            <button type="submit" class="btn">Update</button>
+            <button type="button" class="btn cancel" onclick="closeUpdateForm()">Close</button>
+        </div>
+    </form>
+</div>
+
+<div class="overlay" id="deleteOverlay" onclick="closedeleteForm()"></div>
+<div class="form-popup" id="deleteForm">
+  <form method="post" action="{% url 'adminside:delete_table' %}" class="form-container" id="FormDelete"  >
+    {% csrf_token %}
+    <h3 align="center">
+      Are you sure you want to delete?
+    </h3>
+    <input type="hidden" id="tID" name="tID" />
+      <div class="form-buttons">
+          <button type="submit" class="btn">Delete</button>
+          <button type="button" class="btn cancel" onclick="closedeleteForm()">Cancel</button>
+      </div>
+  </form>
+</div>
+
+  <div class="table-responsive">
+    <table class="table stores-detail-table">
+      <thead style="border-bottom: 2px solid #333 !important">
+        <tr>
+           <th>Table ID</th>
+          <th>Seats</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody > 
+        {% for table in data.Tables %}
+        <tr>
+          <td>{{ table.table_id }}</td>
+          <td>{{ table.seats }}</td>
+          <td>{{ table.status }}</td>
+          <td class="action-buttons">
+            <button class="update-btn" onclick="openUpdateForm('{{ table.pk }}','{{ table.table_id }}', '{{ table.seats }}', '{{ table.status }}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="delete-btn" onclick="sureform('{{ table.id }}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4">No tables found.</td>
+        </tr>
+        {% endfor %}
+        <!-- {% for branch in data.branches %}
+        <tr>
+            <td>{{ branch.id }}</td>
+            <td>{{ branch.location }}</td>
+            <td>{{ branch.area }}</td>
+            <td>{{ branch.manager_id }}</td>
+            <td>{{ branch.phone_no }}</td>
+            <td>{{ branch.status }}</td>
+            <td class="action-buttons">
+              <button class="update-btn" onclick="openUpdateForm('{{ branch.id }}', '{{ branch.location }}', '{{ branch.area }}', '{{ branch.manager_id }}', '{{ branch.phone_no }}', '{{ branch.status }}')">
+                  <i class="fas fa-edit"></i>
+              </button>
+          
+               <button class="delete-btn" onclick="sureform('{{ branch.id }}')">
+                
+                <i class="fas fa-trash"></i></button>
+
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No branches found.</td>
+            <p>Branches count: {{ branches|length }}</p>
+        </tr>
+        {% endfor %} -->
+         <!-- {% for i in branches %}
+             <p>{{ i.location }} - {{ i.area }}</p>
+         {% empty %}
+           <p>No data found.</p>
+         {% endfor %} -->
+        
+      </tbody>
+     
+    </table>
+  </div>
+</div>
+
+<script src="{% static 'js/tables_scripts.js' %}"></script>
+<script>
+  document.getElementById("searchInput").addEventListener("input", function () {
+    const input = this.value.toLowerCase();
+    const rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+      const tableId = row.children[0]?.textContent.toLowerCase(); // Table ID
+      const seats = row.children[1]?.textContent.toLowerCase();   // Seats
+      const status = row.children[2]?.textContent.toLowerCase();  // Status
+
+      if (
+        tableId.includes(input) ||
+        seats.includes(input) ||
+        status.includes(input)
+      ) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  });
+</script>
+{% comment %}
+<!-- {% load static %}
+{% block title %}
+<title>Tables</title>
+{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/tables_style.css' %}" />
+<link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+{% endblock %}
+
+<div class="tables-page">
+  <div class="tables-title mt-4">
+    <h3>TABLES</h3>
+    
+  <div class="search-container">
+    <input
+      type="text"
+      id="searchInput"
+      class="search-input"
+      placeholder="Search by location"
+    />
+    <button class="search-btn" onclick="toggleSearch()">
+      <i class="fa fa-search"></i>
+    </button>
+  </div>
+
+  <button
+    class="open-button add-fooditems-button rounded-3"
+    onclick="openForm()"
+  >
+    <span class="btn-text">
+      <i class="fa-solid fa-plus plus-icon"></i> Create Table
+    </span>
+    <span class="btn-icon"><i class="fa-solid fa-plus plus-icon"></i></span>
+  </button>
+</div>
+  <div class="overlay" id="overlay" onclick="closeForm()"></div>
+  <div class="form-popup" id="myForm">
+    <form method="post" action="{% url 'adminside:tables' %}" id="tableForm" class="form-container">
+      {% csrf_token %}
+      <h1 class="mb-3">Add Table</h1>
+      <div class="form-group">
+        <label for="tableID">Table No.</label>
+        <input type="number" id="tableID" name="table_id" required />
+        
+        <label for="seats">Seats</label>
+        <input type="number" id="seats" name="seats" required />
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="status" name="status">
+          <option value="Active">Active</option>
+          <option value="Disabled">Disabled</option>
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button type="submit" class="btn">Add</button>
+        <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="overlay" id="updateOverlay" onclick="closeUpdateForm()"></div>
+  <div class="form-popup" id="updateForm">
+    <form method="post" action="" class="form-container">
+      {% csrf_token %}
+      <h1 class="mb-3">Update Table</h1>
+      <input type="hidden" id="tableIDUpdate" name="table_id" />
+      <label>Seats</label>
+      <input type="number" id="updateSeats" name="seats" required />
+      <label>Status</label>
+      <select id="updateStatus" name="status">
+        <option value="Active">Active</option>
+        <option value="Disabled">Disabled</option>
+      </select>
+      <div class="form-buttons">
+        <button type="submit" class="btn">Update</button>
+        <button type="button" class="btn cancel" onclick="closeUpdateForm()">Close</button>
+      </div>
+    </form> 
+  </div>
+
+
+  <div class="overlay" id="deleteOverlay" onclick="closeDeleteForm()"></div>
+  <div class="form-popup" id="deleteForm">
+    <form method="post" action="" class="form-container">
+      {% csrf_token %}
+      <h3 align="center">Are you sure you want to delete?</h3>
+      <input type="hidden" id="deleteTableID" name="table_id" />
+      <div class="form-buttons">
+        <button type="submit" class="btn">Delete</button>
+        <button type="button" class="btn cancel" onclick="closeDeleteForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table stores-detail-table">
+      <thead style="border-bottom: 2px solid #333 !important">
+        <tr>
+          <th>Table ID</th>
+          <th>Seats</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for table in data.Tables %}
+        <tr>
+          <td>{{ table.table_id }}</td>
+          <td>{{ table.seats }}</td>
+          <td>{{ table.status }}</td>
+          <td class="action-buttons">
+            <button class="update-btn" onclick="openUpdateForm('{{ table.table_id }}', '{{ table.seats }}', '{{ table.status }}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="delete-btn" onclick="openDeleteForm('{{ table.table_id }}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4">No tables found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="{% static 'js/tables_scripts.js' %}"></script> -->
+{% endcomment %}

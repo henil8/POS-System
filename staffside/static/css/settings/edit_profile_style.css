@@ -15,11 +15,11 @@
 }
 
 /* Profile Picture */
-.profile-pic {
-    width: 400px;
-    height: 400px;
-    object-fit: cover;
+.moon23 {
+    width: 400px;          /* Adjust as needed */
+    height: 400px;         /* Adjust as needed */
     border-radius: 50%;
+    /* object-fit: cover; */
 }
 
 /* Edit Icon */

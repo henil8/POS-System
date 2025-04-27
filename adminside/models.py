@@ -19,14 +19,31 @@ class Branch(models.Model):
     def __str__(self):
         return f"{self.location}-{self.area}"
 
-class Purchase(models.Model):
-    food_item_id=models.IntegerField(primary_key=True)
-    food_item=models.CharField(max_length=50)
-    cost_price=models.IntegerField(null=False)
-    supplier_id=models.IntegerField(null=False)
-    purchased_date=models.DateField()
-    payment_status=models.CharField(max_length=10)
+class Supplier(models.Model):
+  supplier_name = models.CharField(max_length=50)
+  company_name = models.CharField(max_length=50)
+  supplier_email=models.EmailField(max_length=254)
+  supplier_phone=PhoneNumberField()
+  address= models.CharField(max_length=250)
+  branch=models.CharField(max_length=50)
 
+  def __str__(self):
+      return f'{self.company_name}/{self.supplier_name}'
+
+
+class Purchase(models.Model):
+    status=[
+        ('Done',"Done"),
+        ('Remaining',"Remaining")
+        ]
+    food_item=models.CharField(max_length=50)
+    quantity=models.CharField(max_length=30)
+    cost_price=models.IntegerField(null=False)
+    supplier_company_Person=models.CharField(max_length=40)
+    phone_no=PhoneNumberField()
+    purchased_date=models.DateTimeField()
+    payment_status=models.CharField(max_length=10,choices=status)
+     
 
 
 class Categories(models.Model):
@@ -56,6 +73,9 @@ class Inventory(models.Model):
     def __str__(self):
       return self.food_item_name
 
+
+
+
 class CustomUser(AbstractUser):
      groups = models.ManyToManyField(
         Group,
@@ -70,6 +90,14 @@ class CustomUser(AbstractUser):
      role=models.CharField(max_length=30)
      branch=models.ForeignKey(Branch,on_delete=models.SET_NULL,null=True)
      phone_no=PhoneNumberField(null=True,blank=True)
-     image=models.ImageField(height_field=None,width_field=None,upload_to=None,blank=True,null=True)
+     image=models.ImageField(height_field=None,width_field=None,upload_to='staff/',blank=True,null=True)
      
-     
+class Tables(models.Model):
+    status=[
+        ('Active',"Active"),
+        ('Disabled',"Disabled")
+        ]
+    table_id=models.IntegerField()
+    seats=models.IntegerField()
+    status=models.CharField(max_length=30,choices=status)
+

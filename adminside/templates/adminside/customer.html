@@ -13,24 +13,22 @@
         type="text"
         id="searchInput"
         class="search-input"
-        placeholder="Search by Firstname or Lastname"
+        placeholder="Search by Name or Phone No"
+        onkeyup="toggleSearch()"
       />
       <button class="search-btn" onclick="toggleSearch()">
         <i class="fa fa-search"></i>
       </button>
     </div>
 
-    <button
-      class="open-button add-customer-button rounded-3"
-      onclick="openForm(false)"
-    >
+    <!-- <button class="open-button add-customer-button rounded-3" onclick="openForm()">
       <span class="btn-text">
         <i class="fa-solid fa-plus plus-icon"></i> Add Customer
       </span>
       <span class="btn-icon"><i class="fa-solid fa-plus plus-icon"></i></span>
-    </button>
+    </button> -->
   </div>
-
+  <!--
   <div class="overlay" id="overlay"></div>
   <div class="form-popup" id="myForm">
     <form id="customerForm" class="form-container">
@@ -92,25 +90,53 @@
         </button>
       </div>
     </form>
-  </div>
+  </div> -->
 
   <div class="table-responsive">
     <table class="table customer-detail-table">
       <thead>
         <tr>
           <th>ID</th>
-          <th>FirstName</th>
-          <th>LastName</th>
-          <th>Address</th>
-          <th>PhoneNo</th>
+          <th>Name</th>
+          <th>Phone No.</th>
           <th>Email</th>
-          <th>Gender</th>
-          <th>Action</th>
+          <th>Time and Date</th>
         </tr>
       </thead>
-      <tbody id="customerBody"></tbody>
+      <tbody>
+        {% for customer in data.customers %}
+        <tr>
+          <td>{{ customer.id }}</td>
+          <td>{{ customer.name }}</td>
+          <td>{{ customer.phone_no }}</td>
+          <td>{{ customer.email }}</td>
+          <td>{{ customer.timeanddate }}</td>
+        </tr>
+         {%  endfor %}
+      </tbody>
     </table>
   </div>
 </div>
 
 <script src="{% static 'js/customer_scripts.js' %}"></script>
+
+<script>
+  function toggleSearch() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const table = document.querySelector(".customer-detail-table");
+    const rows = table.querySelectorAll("tbody tr");
+  
+    rows.forEach((row) => {
+      const name = row.cells[1]?.textContent.toLowerCase() || "";
+      const phone = row.cells[2]?.textContent.toLowerCase() || "";
+  
+      if (name.includes(filter) || phone.includes(filter)) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  }
+  </script>
+  

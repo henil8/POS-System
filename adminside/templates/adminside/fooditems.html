@@ -4,6 +4,47 @@
 {% endblock %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/fooditem_style.css' %}">
+
+<style>
+
+.image-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.9);
+}
+
+.image-modal .modal-content {
+  margin: auto;
+  display: block;
+  max-width: 80%;
+  max-height: 80%;
+  animation: zoom 0.3s ease;
+}
+
+.image-modal .close {
+  position: absolute;
+  top: 70px;
+  right: 100px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@keyframes zoom {
+  from { transform: scale(0.7) }
+  to { transform: scale(1) }
+}
+
+</style>
+
 {% endblock %}
 
 <div class="food-items-page">
@@ -11,7 +52,7 @@
     <h3>FOOD ITEMS</h3>
 
     <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search by category or name">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by category or name" onkeyup="toggleSearch()">
       <button class="search-btn" onclick="toggleSearch()">
         <i class="fa fa-search"></i>
       </button>
@@ -26,16 +67,80 @@
           <th>Image</th>
           <th>Name</th>
           <th>Category</th>
-          <th>Description</th>
+          <!-- <th>Description</th> -->
           <th>Price</th>
           <th>Status</th>
         </tr>
       </thead>
-      <tbody id="foodTableBody">
-        
+      <tbody >
+          {% for food_item in data.inventory %}
+            <tr>
+              <td>{{food_item.id}}</td>
+              <td>
+                <img src="{{ food_item.image.url }}" 
+                alt="Food Image" 
+                class="clickable-img" 
+                onclick="showImageModal('{{ food_item.image.url }}')" 
+                style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;"  />
+              </td>
+              <td>{{food_item.food_item_name}}</td>
+              <td>{{food_item.category}}</td>
+              <td>₹ {{food_item.sell_price}}</td>
+              <td>
+                {% if food_item.quantity > 0 %}
+                  <span class="text-success">Available</span>
+                {% else %}
+                  <span class="text-danger">Not Available</span>
+                {% endif %}
+              </td>
+              
+
+            </tr>
+          
+          {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+<div id="imageModal" class="image-modal">
+  <span class="close" onclick="closeImageModal()">&times;</span>
+  <img class="modal-content" id="modalImage">
+</div>
+
 
 <script src="{% static 'js/fooditem_scripts.js' %}"></script>
+<script>
+
+function showImageModal(src) {
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  modal.style.display = "block";
+  modalImg.src = src;
+}
+
+function closeImageModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+
+function toggleSearch() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const table = document.querySelector(".fooditem-detail-table tbody");
+  const rows = table.getElementsByTagName("tr");
+
+  for (let i = 0; i < rows.length; i++) {
+    const nameCell = rows[i].getElementsByTagName("td")[2]; // Name column
+    const categoryCell = rows[i].getElementsByTagName("td")[3]; // Category column
+
+    if (nameCell && categoryCell) {
+      const name = nameCell.textContent.toLowerCase();
+      const category = categoryCell.textContent.toLowerCase();
+
+      if (name.includes(input) || category.includes(input)) {
+        rows[i].style.display = "";
+      } else {
+        rows[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>

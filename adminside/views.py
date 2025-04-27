@@ -1,27 +1,142 @@
 from django.shortcuts import render, redirect,get_object_or_404
-from .forms import CustomPasswordChangeForm,StaffRegisterForm,InventoryForm
-from .models import Branch,Inventory,Purchase,CustomUser,Categories
+from .forms import CustomPasswordChangeForm,StaffRegisterForm,InventoryForm,PurchaseForm,UpatePasswordForm,UpdateUserForm
+from .models import Branch,Inventory,Purchase,CustomUser,Categories,Tables,Supplier
 from django.contrib.auth.forms import UserChangeForm,AuthenticationForm
-from django.contrib.auth import login,logout,authenticate
+from django.contrib.auth import login,logout,authenticate,update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse
-
+from django.db.models import Sum,Count,Max
+from staffside.models import Sales_details,Sales_Report,Customer
+from django.utils import timezone
+from datetime import timedelta
+import numpy as np
+from staffside.models import Sales_details
+from django.db.models.functions import TruncHour,TruncDay,TruncMonth
+from django.utils.timezone import localtime
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return redirect('adminside:dashboard')
 
+@login_required(login_url='')
 def render_page(request, template, data=None):
     if data is None:
         data={}
     return render(request, "adminside/base.html", {"template": template, "data":data})
 
+@login_required(login_url='')
 def dashboard(request):
-    return render_page(request, 'adminside/dashboard.html')
+    timezone.activate('Asia/Kolkata')
+    today=timezone.now()
+    print(today,'-----------------------------')
+    weekly=timezone.now() - timedelta(days=7)
+    print(weekly,'-----------------------')
+    # monthly=timezone.now() - timedelta(days=30)
+    monthly = timezone.now().replace(day=1)
+    print(monthly,'-----------------')
+    sales_details=Sales_Report.objects.all()
+    
+    # For Graph
+    daily_sales=Sales_details.objects.filter(timeanddate__date=today).annotate(hour=TruncHour('timeanddate'))\
+        .values('hour')\
+        .annotate(total=Sum('total_amount'))\
+        .order_by('hour')
+
+    weekly_sales=Sales_details.objects.filter(timeanddate__date__gte=weekly.date()).annotate(day=TruncDay('timeanddate'))\
+        .values('day')\
+        .annotate(total=Sum('total_amount'))\
+        .order_by('day')
+    
+    monthly_sales=Sales_details.objects.filter(timeanddate__date__gte=monthly.date()).annotate(month=TruncDay('timeanddate'))\
+        .values('month')\
+        .annotate(total=Sum('total_amount'))\
+        .order_by('month')
+    
+    sales_time = [localtime(sale['hour']).strftime('%I %p') for sale in daily_sales]  # e.g., 10 AM, 11 AM
+    sales_amount = [sale['total'] for sale in daily_sales]
+
+    sales_last_week=[localtime(sale['day']).strftime('%d %b') for sale in weekly_sales] 
+    sales_total_last_week=[(sale['total']) for sale in weekly_sales] 
+
+    sales_last_month=[localtime(sale['month']).strftime('%d %b') for sale in monthly_sales] 
+    sales_total_last_month=[(sale['total']) for sale in monthly_sales]
+    # total_revenue=Sales_details.objects.aggregate(Sum('total_amount'))['total_amount__sum']
+    # print(total_revenue,'********************')
+    total_revenue_today=None
+    total_revenue_this_week=None
+    total_revenue_this_month=None
+
+    filter='Today'
+    if request.method=='POST':
+      filter=request.POST.get('filter')
+
+
+    print(filter,'__________________--')
+    total_revenue_today=Sales_details.objects.filter(timeanddate__date=today).aggregate(Sum('total_amount'))['total_amount__sum']
+    total_revenue_this_week=Sales_details.objects.filter(timeanddate__date__gte=weekly.date()).aggregate(Sum('total_amount'))['total_amount__sum']
+    total_revenue_this_month=Sales_details.objects.filter(timeanddate__date__gte=monthly.date()).aggregate(Sum('total_amount'))['total_amount__sum']
 
 
 
+    total_profit_today=Sales_Report.objects.filter(timeanddate__date=today).aggregate(Sum('profit'))['profit__sum']
+    total_profit_this_week=Sales_Report.objects.filter(timeanddate__date__gte=weekly.date()).aggregate(Sum('profit'))['profit__sum']
+    total_profit_this_month=Sales_Report.objects.filter(timeanddate__date__gte=monthly.date()).aggregate(Sum('profit'))['profit__sum']
 
+    total_orders_today=Sales_details.objects.filter(timeanddate__date=today).aggregate(Count('order_id'))['order_id__count']
+    total_orders_this_week=Sales_details.objects.filter(timeanddate__date__gte=weekly.date()).aggregate(Count('order_id'))['order_id__count']
+    total_orders_this_month=Sales_details.objects.filter(timeanddate__date__gte=monthly.date()).aggregate(Count('order_id'))['order_id__count']
+   
+    # For Chart
+    Food=Sales_Report.objects.exclude(category__in=['Refreshments','Deserts'] ).aggregate(Sum('quantity'))['quantity__sum']
+    Refreshments=Sales_Report.objects.filter(category='Refreshments').aggregate(Sum('quantity'))['quantity__sum']
+    Deserts=Sales_Report.objects.filter(category='Deserts').aggregate(Sum('quantity'))['quantity__sum']
+    # Total=Sales_Report.objects.aggregate(Sum('quantity'))['quantity__sum']
+
+   # For Trending Dishes
+    todays_trending_dishes=Sales_Report.objects.filter(timeanddate__date=today).values('item_name').annotate(quantity=Sum('quantity')).order_by('-quantity')[:3]
+    this_weeks_trending_dishes=Sales_Report.objects.filter(timeanddate__date__gte=weekly.date()).values('item_name').annotate(quantity=Sum('quantity')).order_by('-quantity')[:3]
+    this_months_trending_dishes=Sales_Report.objects.filter(timeanddate__date__gte=monthly.date()).values('item_name').annotate(quantity=Sum('quantity')).order_by('-quantity')[:3]
+
+    # todays_trending_dishes=todays_trending_dishes.filter(item_name=todays_trending_dishes.aggregate(Max('quantity')))
+    print(todays_trending_dishes,'----------------------')
+    print(this_weeks_trending_dishes,'&&&&&&&&&&&&&&&&&&&&&&&')
+  
+
+    best_employees=Sales_details.objects.values('staff_name').annotate(total_orders=Count('order_id')).order_by('-total_orders')[:3]
+
+    context={
+        "filter":filter,
+        "sales_time":list(sales_time),
+        "sales_amount":list(sales_amount),
+        "sales_last_week":sales_last_week,
+        "sales_total_last_week":sales_total_last_week,
+        "sales_last_month":sales_last_month,
+        "sales_total_last_month":sales_total_last_month,
+        "total_revenue_today":total_revenue_today,
+        "total_revenue_this_week":total_revenue_this_week,
+        "total_revenue_this_month":total_revenue_this_month,
+        "total_profit_today":total_profit_today,
+        "total_profit_this_week":total_profit_this_week,
+        "total_profit_this_month":total_profit_this_month,
+        "total_orders_today":total_orders_today,
+        "total_orders_this_week":total_orders_this_week,
+        "total_orders_this_month":total_orders_this_month,
+        "Food":Food,
+        "Refreshments":Refreshments,
+        "Deserts":Deserts,
+        "todays_trending_dishes":todays_trending_dishes,
+        "this_weeks_trending_dishes":this_weeks_trending_dishes,
+        "this_months_trending_dishes":this_months_trending_dishes,
+        "best_employees":best_employees
+    }
+
+
+    return render_page(request, 'adminside/dashboard.html',context)
+
+
+
+@login_required(login_url='')
 def branches(request):  
     branches=Branch.objects.all()
     context={
@@ -69,12 +184,108 @@ def delete_branch(request):
       return redirect('/adminside/branches/')
     return redirect('/adminside/branches/')
 
+@login_required(login_url='')
 def suppliers(request):
-    return render_page(request, 'adminside/suppliers.html')
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        supplierName = request.POST.get('supplierName')
+        companyName = request.POST.get('companyName')
+        supplierEmail = request.POST.get('supplierEmail')
+        supplierAddress= request.POST.get('supplierAddress')
+        supplierPhone = request.POST.get('supplierPhone')
+        supplierStore=request.POST.get('supplierStore')
+ 
+        SP=Supplier(supplier_name=supplierName,company_name=companyName,supplier_email=supplierEmail,
+                    address=supplierAddress,supplier_phone=supplierPhone,branch=supplierStore)
+        SP.save()
+        return redirect('adminside:suppliers')
+  
+    branch=Branch.objects.all()
+    query=request.GET.get('q')
+    if query:
+        suppliers=Supplier.objects.filter(supplier_name__icontains=query) | Supplier.objects.filter(company_name__icontains=query)
+    else:
+        suppliers=Supplier.objects.all().order_by('id')
 
+    context={
+        "suppliers":suppliers,
+        "branch":branch
+    }
+
+    print(context)
+    return render_page(request, 'adminside/suppliers.html',context)
+
+def update_supplier(request):
+    id=request.POST.get("supplierID")
+    supplier=Supplier.objects.get(id=id)
+    if request.method == 'POST':
+        supplier.id=request.POST.get('supplierID')
+        supplier.supplier_name = request.POST.get('updateName')
+        supplier.company_name = request.POST.get('updateCompany')
+        supplier.supplier_email = request.POST.get('update_email')
+        supplier.address= request.POST.get('update_address')
+        supplier.supplier_phone = request.POST.get('update_phone')
+        supplier.branch = request.POST.get('update_branch')
+        supplier.save()
+        return redirect("/adminside/suppliers")
+    return redirect("/adminside/suppliers")
+
+import logging
+
+
+
+def delete_supplier(request):
+    if request.method == 'POST':
+        id = request.POST.get('SupID')
+        supplier= get_object_or_404(Supplier, pk=id)
+        supplier.delete()        
+        return redirect('adminside:suppliers')
+
+
+@login_required(login_url='')
 def purchase(request):    
-    return render_page(request, 'adminside/purchase.html')
+    form= PurchaseForm()
+    if request.method=='POST':
+        form=PurchaseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/adminside/purchase/')
+        else:
+          messages.error(request,"Invalid Details")
+    purchases=Purchase.objects.all()
+    context={
+        "form":form,
+        "purchases":purchases
+    }
 
+    return render_page(request, 'adminside/purchase.html',context)
+def update_purchase(request):
+    if request.method == 'POST':
+        purchase_id = request.POST.get('purchase_id')
+        purchase = Purchase.objects.get(id=purchase_id)
+        form = PurchaseForm(request.POST, instance=purchase)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Updated successfully.")
+            return redirect('/adminside/purchase/')
+
+        else:
+            print(form.errors,'------------------------')
+            messages.error(request, "Invalid data.")
+            return redirect('/adminside/purchase/')
+
+def delete_purchase(request):
+    if request.method == 'POST':
+        purchase_id = request.POST.get('purchase_id')   
+        purchase = Purchase.objects.filter(id=purchase_id).first()
+        if purchase:
+            purchase.delete()
+            messages.success(request, "Purchase deleted successfully.")
+        else:
+           pass
+    return redirect('/adminside/purchase/')
+
+@login_required(login_url='')
 def categories(request):
     if request.method=='POST':
         # cat_id=request.POST.get('ID')
@@ -115,7 +326,7 @@ def delete_category(request):
     return redirect('/adminside/categories/')
 
 
-
+@login_required(login_url='')
 def inventory(request):
     form=InventoryForm()
     if request.method=='POST':
@@ -126,7 +337,7 @@ def inventory(request):
         else:
             messages.error(request,"Invalid Details")
     
-    inventory=Inventory.objects.all()
+    inventory=Inventory.objects.all().order_by('id')
     context={
         "form":form,
         "inventory":inventory
@@ -153,11 +364,25 @@ def get_update_form(request, id):
     form = InventoryForm(instance=item)  # Prefill the form with the item data
     return HttpResponse(form.as_p()) 
 
+@login_required(login_url='')
 def fooditems(request): 
-    return render_page(request, 'adminside/fooditems.html')
 
+    inventory=Inventory.objects.all().order_by('id')
+
+    context={
+        "inventory":inventory
+    }
+    return render_page(request, 'adminside/fooditems.html',context)
+
+
+@login_required(login_url='')
 def customer(request):
-    return render_page(request, 'adminside/customer.html')
+    customers = Customer.objects.all().order_by('-id')
+
+    context={
+        "customers":customers
+    }
+    return render_page(request, 'adminside/customer.html',context)
 
 def staff(request):
     form=StaffRegisterForm(initial={
@@ -177,11 +402,12 @@ def staff(request):
             return redirect ('/adminside/staff/')
         else:
             messages.error(request,("Please correct the errors below."))
-            
-    staffs=CustomUser.objects.all() 
+    staff_details=Sales_details.objects.values('staff_name').annotate(total_orders=Count('order_id'),sales=Sum('total_amount'))      
+    staffs=CustomUser.objects.all().order_by('id')
     context={
         "form":form,
-        "staffs":staffs
+        "staffs":staffs,
+        "staff_details":staff_details
     }
     return render_page(request, 'adminside/staff.html',context)
 
@@ -197,21 +423,87 @@ def delete_staff(request):
       return redirect('/adminside/staff/')
     return redirect('/adminside/staff/')
 
+@login_required(login_url='')
+def tables(request):
+    tables=Tables.objects.all().order_by('table_id')
+    if request.method=='POST':
+        Table_no=request.POST.get('table_id')
+        seats=request.POST.get('seats')
+        status=request.POST.get('status')
+        tb=Tables(table_id=Table_no,seats=seats,status=status)
+        tb.save()
+    
+        return redirect('/adminside/tables/')
+    context={
+        "Tables":tables,
+    }
+    return render_page(request,'adminside/tables.html',context)
 
+def update_table(request):
+    if request.method=='POST':
+        table_id=request.POST.get('tabId')
+        table=Tables.objects.get(id=table_id)
+        table.table_id=request.POST.get('Table_id')
+        table.seats=request.POST.get('seats')
+        table.status=request.POST.get('status')
+        table.save()
+        return redirect('/adminside/tables/')
+    
+def delete_table(request):
+    if request.method=='POST':
+        table_id=request.POST.get('tID')
+        table=Tables.objects.get(id=table_id)
+        table.delete()
+        return redirect('/adminside/tables/')
+
+@login_required(login_url='')
 def reports(request):
-    sales_data = [
-    {"product_id": "101", "product_name": "Neapolitan Pizaa", "calegories": "Pizaa", "email": "john.doe@example.com", "quentity": "450", "paid": "200", "balance": "250", "date": "01/15"},
-    {"product_id": "102", "product_name": "Veg. Burger", "calegories": "Burger", "email": "jane.smith@example.com", "quentity": "350", "paid": "150", "balance": "200", "date": "01/16"},
-    {"product_id": "103", "product_name": "French Fries", "calegories": "Fast Food", "email": "robert.brown@example.com", "quentity": "500", "paid": "250", "balance": "250", "date": "01/17"},
-    {"product_id": "104", "product_name": "Veg. Sandvich", "calegories": "Sandvich", "email": "emily.white@example.com", "quentity": "600", "paid": "300", "balance": "300", "date": "01/18"},
-    {"product_id": "105", "product_name": "Dosa (Butter)", "calegories": "South Indian", "email": "michael.green@example.com", "quentity": "750", "paid": "500", "balance": "250", "date": "01/19"},
-    ]
-    return render_page(request, 'adminside/reports.html', data=sales_data)
+    filter=None
+    sales_data=Sales_Report.objects.all()
+    sales_data1=Sales_Report.objects.values('item_id','item_name','category').annotate(quantity=Sum('quantity'),profit=Sum('profit'))
+    if request.method=='POST':
+        filter=request.POST.get('filter')
+        queryset = Sales_Report.objects.values(
+            'item_id', 'item_name', 'category'
+        ).annotate(
+            quantity=Sum('quantity'),
+            profit=Sum('profit')
+        )
+        if filter == 'MaxQuantitySold':
+            max_q = queryset.order_by('-quantity').first()
+            sales_data1 = [max_q] if max_q else []
+        elif filter == 'MinQuantitySold':
+            min_q = queryset.order_by('quantity').first()
+            sales_data1 = [min_q] if min_q else []
+        elif filter == 'MaxProfitFooditem':
+            max_p = queryset.order_by('-profit').first()
+            sales_data1 = [max_p] if max_p else []
+        elif filter == 'MinProfitFooditem':
+            min_p = queryset.order_by('profit').first()
+            sales_data1 = [min_p] if min_p else []
+        elif filter == 'default':
+            min_p = queryset
+            sales_data1 = min_p
+    context={
+        'sales_data':sales_data,
+        'sales_data1':sales_data1,
+        'filter':filter
+    }
+    return render_page(request, 'adminside/reports.html',context)
+
+
+def low_stock_notifications(request):
+    threshold = 20  # or 30 if you want
+    low_stock_items = Inventory.objects.filter(quantity__lt=threshold)
+    return render_page(request, 'adminside/low_stock.html', {
+        'low_stock_items': low_stock_items,
+    })
 
 
 def adminside_settings_view(request):
     return redirect('adminside:profile')
 
+@login_required(login_url='')
 def render_settings_page(request, template, context=None):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, template, context or {})
@@ -220,14 +512,54 @@ def render_settings_page(request, template, context=None):
     return render(request, "adminside/settings.html", context)
 
 def change_password(request):
-    form = CustomPasswordChangeForm(request.user)
-    return render_settings_page(request, "adminside/settings/change_password.html", {'form': form})
+    current_user=request.user
+    form = UpatePasswordForm(user=current_user)
+    if request.method=='POST':
+       form=UpatePasswordForm(user=current_user,data=request.POST)
+       if form.is_valid():
+           form.save()
+           update_session_auth_hash(request,form.user)
+           messages.success(request,('Password have been changed successfully'))
+           return redirect('/adminside/change_password/')
+       else:
+          messages.error(request,('Please correct the errors below'))
+          print(form.errors,'-------------------------')
+    
+     
+    context={
+        "form":form
+    }  
+    return render_settings_page(request, "adminside/settings/change_password.html", context)
+
 
 def edit_profile(request):
     return render_settings_page(request,"adminside/settings/edit_profile.html")
 
+@login_required(login_url='')
 def profile(request):
-    return render_settings_page(request,"adminside/settings/profile.html")
+    timezone.activate('Asia/Kolkata')
+    user_form=UpdateUserForm(request.user)
+
+    if request.user.is_authenticated:
+        current_user=CustomUser.objects.get(id=request.user.id)
+        user_form=UpdateUserForm(request.POST or None,instance=current_user)
+        if user_form.is_valid():
+             user_form.save()
+             messages.success(request,'User details have  been  Updated  successfully')
+             return redirect('/adminside/profile/')
+    context={
+        "user_form":user_form   
+    }
+    return render_settings_page(request,"adminside/settings/profile.html",context)
+
+def save_image(request,id):
+    if request.method=="POST" and request.FILES :
+        image=request.FILES.get('image')
+        current_user=CustomUser.objects.get(id=id)
+        current_user.image=image
+        current_user.save()
+        messages.success(request,'Image is uploaded successfully')
+        return redirect('/adminside/profile/')
 
 def logout_view(request):
     sales_data = [
@@ -251,7 +583,7 @@ def login_view(request):
                
             #    print(f"User: {user.username}, is_staff: {user.is_staff}, is_superuser: {user.is_superuser}")
                  
-            #    login(request,user)
+               login(request,user)
               
                if user.is_staff:
                    return redirect('adminside:dashboard')
@@ -267,3 +599,7 @@ def login_view(request):
     }
 
     return render(request,'adminside/login.html',context)
+
+def logout_user(request):
+    logout(request)
+    return redirect('adminside:login')
