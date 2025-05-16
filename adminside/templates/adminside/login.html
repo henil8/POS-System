@@ -1,44 +1,91 @@
-{% load static %}{% block title %}
+{% load static %}
+{% block title %}
 <title>Login</title>
-{% endblock %} {% block css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
 {% endblock %}
 
-<div class="container mt-5" style="max-width: 400px; margin: 0 auto;">
-    <h2 class="text-center">Login</h2>
-    <form method="post" action="{% url 'adminside:login' %}" autocomplete="off">
-        {% csrf_token %}
-          {% if form.non_field_errors %}
-          <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            
-            {% for error in form.non_field_errors %}
-                {{ error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                
-             {% endfor %}
-          </div>
-          {% endif %}
-        <div class="mb-3">
-            <label for="{{ form.username.id_for_label }}">Username:</label>
-            <input type="text" name="username" class="form-control"
-                value="{{ form.username.value|default_if_none:'' }}" autocomplete="off">
-            <span class="text-danger">{{ form.username.errors }}</span>  <!-- FIXED -->
-        </div>
-        
-        <div class="mb-3">
-            <label for="{{ form.password.id_for_label }}">Password:</label>
-            <input type="password" name="password" class="form-control"
-                autocomplete="new-password">
-            <span class="text-danger">{{ form.password.errors }}</span>  <!-- FIXED -->
-        </div>
+{% block css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
 
-        <button type="submit" class="btn btn-primary w-100">Login</button>
-    </form>
-    <a href="#"><p>forgot password?</p> </a>    
+<style>
+    body {
+        background: linear-gradient(to right, #a87b07, #8f94fb);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .login-container {
+        max-width: 400px;
+        margin: 6rem auto;
+    }
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #c8a74e;
+    }
+    .form-icon {
+        position: absolute;
+        top: 10px;
+        left: 15px;
+        color: #6c757d;
+    }
+    .form-group {
+        position: relative;
+    }
+    .form-group input {
+        padding-left: 40px;
+    }
+    .forgot-password {
+        text-align: right;
+        margin-top: 10px;
+    }
+    .forgot-password a {
+        color: #6c757d;
+        text-decoration: none;
+    }
+    .forgot-password a:hover {
+        text-decoration: underline;
+        color: #343a40;
+    }
+</style>
+
+<div class="container login-container">
+    <div class="card p-4">
+        <h3 class="text-center mb-4 "> Login</h3>
+        <form method="post" action="{% url 'adminside:login' %}" autocomplete="off">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            
+            <div class="mb-3 form-group">
+                <i class="fa fa-user form-icon"></i>
+                <input type="text" name="username" class="form-control" placeholder="Username"
+                    value="{{ form.username.value|default_if_none:'' }}" autocomplete="off">
+                <span class="text-danger">{{ form.username.errors }}</span>
+            </div>
+
+            <div class="mb-3 form-group">
+                <i class="fa fa-lock form-icon"></i>
+                <input type="password" name="password" class="form-control" placeholder="Password"
+                    autocomplete="new-password">
+                <span class="text-danger">{{ form.password.errors }}</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <div class="forgot-password">
+                <a href="{% url 'adminside:password_reset' %}">Forgot Password?</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- Bootstrap JS (CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

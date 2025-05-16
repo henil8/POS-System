@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 app_name = "adminside"
 
@@ -38,4 +39,8 @@ urlpatterns = [
     path('get_update_form/<int:id>/',views.get_update_form,name='get_update_form'),
     path('logoutuser/',views.logout_user,name='logoutuser'),
     path('notifications/', views.low_stock_notifications, name='low_stock_notifications'),
+    path('password-reset/', views.password_reset, name='password_reset'),
+    path('password-reset/send_otp/', views.send_otp, name='send_otp'),
+    path('password-reset/verify_otp/', views.verify_otp, name='verify_otp'),
+    path('password/password_reset_confirm/', views.password_reset_cofirm, name='password_reset_confirm'),
 ]

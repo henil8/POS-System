@@ -28,32 +28,24 @@ def orders(request):
     cart=cart_items.objects.all()
     order_info=None
     table_id=None
-    # if "Table_no" in request.GET:
-    #     table_id=request.GET.get('Table_no')
-    #     print(table_id,'????????????????')
     if request.method=="POST":
         table_id=request.POST.get('Table_id') 
-        print(table_id,'-------------------')
         order_info=order_details.objects.filter(Table_id__Table_id=table_id)
         cart=cart_items.objects.filter(Table_id__Table_id=table_id)
-    # cust_name=Orders.objects.values('cust_name').filter(Table_id=table_id)
-    selected_table=request.GET.get('Table_no')
-    print(selected_table,'--------------------------------')
-    total=0
-    total_items=0
-    order_details_list = order_details.objects.filter(Table_id__Table_id=selected_table)
-    for i in order_details_list:
-        total=total+(i.quantity*i.price)
-        total_items=total_items+i.quantity  
-    print(total,"------------------------------")
+
+    for order in orders:
+        total=0
+        details = order_details.objects.filter(Table_id=order.pk)
+        for i in details:
+            total=total+(i.quantity*i.price)
+        setattr(order, 'total', total) 
+
     context={
         "orders":orders,
         "Order_details":Order_details,
         "order_info":order_info,
         "selected_table":table_id,
         "cart":cart,
-        "total":total,
-        # "cust_name":cust_name
     }
     return render_page(request, 'staffside/orders.html',context)
 
@@ -253,12 +245,13 @@ def tables(request):
 def pos(request):
     cate_name=request.GET.get('cate_name')
     print(cate_name,'--------------------')
+    category_status=Categories.objects.filter(status='Available')
     if cate_name:
       inventory=Inventory.objects.filter(category=cate_name)
     else:
       inventory=Inventory.objects.all().order_by('id')
     cart=cart_items.objects.all()
-    categories=Categories.objects.all()
+    categories=Categories.objects.all().order_by('id')
     filter_cart=None
     selected_table=None
     order_details_list=None

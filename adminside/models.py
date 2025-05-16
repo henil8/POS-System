@@ -2,7 +2,8 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User,AbstractUser,Group,Permission
-from django.utils.timezone import now
+from django.utils import timezone
+
 
 class Branch(models.Model):
     status=[
@@ -91,7 +92,16 @@ class CustomUser(AbstractUser):
      branch=models.ForeignKey(Branch,on_delete=models.SET_NULL,null=True)
      phone_no=PhoneNumberField(null=True,blank=True)
      image=models.ImageField(height_field=None,width_field=None,upload_to='staff/',blank=True,null=True)
-     
+     otp=models.CharField(max_length=6,blank=True,null=True)
+     otp_created_at=models.DateTimeField(blank=True,null=True)
+
+     def is_otp_valide(self):
+         if self.otp_created_at:
+            now=timezone.now()
+            return (now-self.otp_created_at).seconds < 120
+         return False
+
+
 class Tables(models.Model):
     status=[
         ('Active',"Active"),

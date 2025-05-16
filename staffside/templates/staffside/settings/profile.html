@@ -43,7 +43,7 @@
                         <p class="text-muted">role</p>
                     {% endif %}
                     <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#editProfilePicModal">
-                        Change Picture
+                        Add/Change Picture
                     </button>
                 </div>
 
@@ -93,22 +93,23 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <!-- <div class="row mb-3">
                             <div class="col-md-6">
                                 <label>Branch</label>
                                 {{ user_form.branch }} 
                                 <span class="text-danger">{{user_form.branch.errors}}</span>
-                            </div>
+                            </div> -->
                             
                             <div class="col-md-6">
                                 <label>Role</label>
                                 <input type="text" class="form-control" name="role" value="{{ user_form.role.value }}" data-original="{{ user.role }}" disabled>
                                 <span class="text-danger">{{user_form.role.errors}}</span>
                             </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary" id="saveBtn" disabled>Save Changes</button>
+                            </div>
                         </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary" id="saveBtn" disabled>Save Changes</button>
-                        </div>
+                        
 
                       {% if user_form.errors %}
                         <input type="hidden" id="hasErrors" value="1">

@@ -146,3 +146,31 @@
 </div>
 
 <script src="{% static 'js/categories_scripts.js' %}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('.fooditem-detail-table tbody tr');
+
+    searchInput.addEventListener('input', function() {
+        const query = searchInput.value.toLowerCase();
+
+        tableRows.forEach(function(row) {
+            const nameCell = row.querySelector('td:nth-child(2)'); // Name column
+            const statusCell = row.querySelector('td:nth-child(3)'); // Status column
+
+            if (nameCell && statusCell) {
+                const name = nameCell.textContent.toLowerCase();
+                const status = statusCell.textContent.toLowerCase();
+
+                if (name.includes(query) || status.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+});
+
+</script>

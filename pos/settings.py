@@ -58,6 +58,14 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'pos.urls'
 
 
+# Email backend for development
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587  # Use 587 for TLS, or 465 for SSL
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'henil00008@gmail.com'
+EMAIL_HOST_PASSWORD = 'npip rgzh urqc ryri'  # Not your normal Gmail password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 TEMPLATES = [
     {

@@ -19,8 +19,8 @@ class Orders(models.Model):
     Table_id=models.IntegerField()
     name=models.CharField(max_length=30,null=True)
 
-    def __str__(self):
-        return f'Table {self.Table_id}'
+    # def __str__(self):
+    #     return f'Table {self.Table_id}'
 
 class order_details(models.Model):
     Table_id=models.ForeignKey(Orders,on_delete=models.CASCADE)

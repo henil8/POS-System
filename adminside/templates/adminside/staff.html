@@ -52,7 +52,7 @@
             type="text"
             id="searchInput"
             class="search-input"
-            placeholder="Search by name"
+            placeholder="Search by first name or last name"
             onkeyup="toggleSearch()"
           />
           <button class="search-btn" onclick="toggleSearch()">
@@ -292,7 +292,7 @@
       <thead>
         <tr>
           <th>Staff Name</th>
-          <th>Login Time</th>
+          <th>Total Orders</th>
           <!-- <th>Total Orders Taken</th> -->
           <th>Total Sales</th>
         </tr>
@@ -304,7 +304,7 @@
               <td>{{ log.staff_name }} </td>
               <!-- <td>{{ log.staff_name.last_login }}</td> -->
               <td>{{ log.total_orders }}</td>
-              <td>{{ log.sales }}</td>
+              <td> ₹ {{ log.sales }}</td>
             </tr>
           {% endif %}
         {% endfor %}

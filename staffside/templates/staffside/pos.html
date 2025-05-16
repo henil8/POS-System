@@ -56,17 +56,25 @@
             <div class="collapse navbar-collapse">
                 <div class="navbar-nav d-flex flex-nowrap"> 
                     {% for i in data.categories %}   
-                     {% if data.selected_table %}        
-                        <a class="nav-link {% if request.GET.cate_name|stringformat:'s' == i.id|stringformat:'s' %}active{% endif %} mx-2 text-nowrap" 
-                            href="{% url 'staffside:pos' %}?cate_name={{ i.id }}&table_no={{data.selected_table}}" style="margin-right: 35px;">
+                      {% if i.status == 'Available' %}
+                        {% if data.selected_table %}        
+                            <a class="nav-link {% if request.GET.cate_name|stringformat:'s' == i.id|stringformat:'s' %}active{% endif %} mx-2 text-nowrap" 
+                                href="{% url 'staffside:pos' %}?cate_name={{ i.id }}&table_no={{data.selected_table}}" style="margin-right: 35px;">
+                                <b>{{ i.category_name }}</b>    
+                            </a>
+                        {% else %}
+                            <a class="nav-link {% if request.GET.cate_name|stringformat:'s' == i.id|stringformat:'s' %}active{% endif %} mx-2 text-nowrap" 
+                            href="{% url 'staffside:pos' %}?cate_name={{ i.id }}" style="margin-right: 35px;">
                             <b>{{ i.category_name }}</b>    
-                        </a>
-                     {% else %}
-                        <a class="nav-link {% if request.GET.cate_name|stringformat:'s' == i.id|stringformat:'s' %}active{% endif %} mx-2 text-nowrap" 
-                        href="{% url 'staffside:pos' %}?cate_name={{ i.id }}" style="margin-right: 35px;">
-                          <b>{{ i.category_name }}</b>    
-                        </a>
-                     {% endif %}  
+                            </a>
+                        {% endif %}  
+                      {% else %}
+                          <!-- Disabled style for Not Available -->
+                            <span class="nav-link disabled-category mx-2 text-nowrap" style="margin-right: 35px; cursor: not-allowed; color: grey;"
+                            data-bs-toggle="tooltip" data-bs-placement="top" title="Category Not Available">
+                                <b>{{ i.category_name }}</b>    
+                            </span>
+                      {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -87,29 +95,48 @@
             <div class="col-lg-9 col-md-7">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                     {% for food_items in data.inventory %}
-                    <div class="col">
-                        <div class="card h-100">
-                            {% if food_items.image %}
-                                <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img img-fluid">
-                            {% else %}
-                                <img src="/static/default-image.jpg" alt="No image" class="card-img"> 
-                            {% endif %}
-                            <div class="card-body text-center d-flex flex-column">
-                                <h5 class="card-title">{{ food_items.food_item_name }}</h5>
-                                <!-- <p class="card-text">{{ food_items.description }}</p> -->
-                                <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
-                                <form method="post" action="{% url 'staffside:cart' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="Table_no" class="table-no-input">
-                                    <input type="hidden" value="{{request.GET.cate_name}}" name="cate_name">
-                                    <input type="hidden" value="{{ food_items.food_item_name }}" name="itemName">
-                                    <input type="hidden" value="1" name="quantity">
-                                    <input type="hidden" value="{{ food_items.sell_price }}" name="price">
-                                    <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
-                                </form>
+                      {% if food_items.category.status == 'Available' %}
+                            <div class="col">
+                                <div class="card h-100">
+                                    {% if food_items.image %}
+                                        <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img img-fluid">
+                                    {% else %}
+                                        <img src="/static/default-image.jpg" alt="No image" class="card-img"> 
+                                    {% endif %}
+                                    <div class="card-body text-center d-flex flex-column">
+                                        <h5 class="card-title">{{ food_items.food_item_name }}</h5>
+                                        <!-- <p class="card-text">{{ food_items.description }}</p> -->
+                                        <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
+                                        <form method="post" action="{% url 'staffside:cart' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="Table_no" class="table-no-input">
+                                            <input type="hidden" value="{{request.GET.cate_name}}" name="cate_name">
+                                            <input type="hidden" value="{{ food_items.food_item_name }}" name="itemName">
+                                            <input type="hidden" value="1" name="quantity">
+                                            <input type="hidden" value="{{ food_items.sell_price }}" name="price">
+                                            <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                       {% else %}
+
+                           <!-- If Category is Not Available: show card disabled -->
+                            <div class="col">
+                                <div class="card h-100" style="opacity: 0.6;">
+                                    {% if food_items.image %}
+                                        <img src="{{ food_items.image.url }}" alt="{{ food_items.food_item_name }}" class="card-img img-fluid">
+                                    {% else %}
+                                        <img src="/static/default-image.jpg" alt="No image" class="card-img"> 
+                                    {% endif %}
+                                    <div class="card-body text-center d-flex flex-column">
+                                        <h5 class="card-title">{{ food_items.food_item_name }}</h5>
+                                        <p class="price"><strong>₹{{ food_items.sell_price }}</strong></p>
+                                        <button class="btn btn-secondary w-100" disabled>Not Available</button>
+                                    </div>
+                                </div>
+                            </div>
+                       {% endif  %}
                     {% endfor %}
                 </div>
             </div>
@@ -136,11 +163,11 @@
                     </form>
                 </div>
 
-                <div class="order-options d-flex justify-content-between mt-2">
+                <!-- <div class="order-options d-flex justify-content-between mt-2">
                     <button class="btn btn-outline-secondary">Delivery</button>
                     <button class="btn btn-outline-secondary">Dine In</button>
                     <button class="btn btn-outline-secondary">Take Away</button>
-                </div>
+                </div> -->
                 <hr>
 
                 <div id="cart-container" class="cart-items text-center">
@@ -175,14 +202,14 @@
                 <hr>
                    
                 {% if messages %}
-                        <!-- {% for message in messages %} -->
+                        {% for message in messages %}
                             {% if message.tags == 'success' %}
                                 <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
                                     {{ message }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             {% endif %}
-                        <!-- {% endfor %} -->
+                        {% endfor %}
                   {% endif %}
 
 
@@ -210,13 +237,14 @@
                 
                   <button class="btn btn-primary w-100 mt-2">Place an order</button>
                 </form>
-                {% endif %}
-
                 
+                {% endif %}
                 <form method="get" action="{% url 'staffside:payment_page' %}">
                     <input type="hidden" name="table_no" value="{{ data.selected_table }}">
                     <button type="submit" class="btn btn-primary w-100 mt-2">Payment</button>
                 </form>
+                
+                
             </div>
         </div>
     </div>
@@ -231,7 +259,12 @@
         let tableSelector = document.getElementById("table-selector");
         // let tablevalue = document.getElementById("table-selector").value;
         // console.log(tableSelector);
-    
+        
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
         tableSelector.addEventListener("change", function () {
             console.log(tableSelector.value);
         //     fetch(`/staffside/filter_table/${tableSelector.value}/`)  // Fetch the form from Django

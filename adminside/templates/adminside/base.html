@@ -82,14 +82,7 @@
             <i class="fa fa-home"></i><span> Dashboard</span></a
           >
         </li>
-        <li>
-          <a
-            href="{% url 'adminside:branches' %}"
-            class="{% if request.path == '/adminside/branches/' %}active{% endif %}"
-          >
-            <i class="fas fa-city"></i><span> Branches</span></a
-          >
-        </li>
+        
         <li>
           <a
             href="{% url 'adminside:suppliers' %}"
@@ -160,6 +153,14 @@
             class="{% if request.path == '/adminside/reports/' %}active{% endif %}"
           >
             <i class="fa fa-file-alt"></i><span>Sales Reports</span></a
+          >
+        </li>
+        <li>
+          <a
+            href="{% url 'adminside:branches' %}"
+            class="{% if request.path == '/adminside/branches/' %}active{% endif %}"
+          >
+            <i class="fas fa-city"></i><span> Branches</span></a
           >
         </li>
         <li>

@@ -74,7 +74,7 @@
 
                 <!-- Left side Pay button -->
                 <button type="submit" class="btn-pay me-auto" data-bs-toggle="modal" data-bs-target="#payModal" 
-                        data-orderid="{{ order.id }}" data-customer="{{ order.name }}" data-amount="{{ data.total }}" 
+                        data-orderid="{{ order.id }}" data-customer="{{ order.name }}" data-amount="{{ order.total }}" 
                         data-tableid="{{order.Table_id}}">
                     Pay
                 </button>
@@ -353,16 +353,16 @@ $('#payModal').on('show.bs.modal', function (event) {
         var confirmPaymentLink = modal.find('#confirmPaymentLink');
         confirmPaymentLink.attr('href', "{% url 'staffside:pos' %}?table_no=" + tableId);
 });
-$(document).ready(function(){
-    // Pay button logic
-    $(".btn-pay").click(function(){
-        let customerName = $(this).data("customer");
-        let amount = $(this).data("amount");
+// $(document).ready(function(){
+//     // Pay button logic
+//     $(".btn-pay").click(function(){
+//         let customerName = $(this).data("customer");
+//         let amount = $(this).data("amount");
 
-        $("#payCustomer").text(customerName);
-        $("#payAmount").text(amount);
-    });
-});
+//         $("#payCustomer").text(customerName);
+//         $("#payAmount").text(amount);
+//     });
+// });
 
 // Open Edit Box with existing values
 function openEditBox(name, price) {

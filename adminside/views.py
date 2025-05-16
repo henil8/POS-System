@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect,get_object_or_404
 from .forms import CustomPasswordChangeForm,StaffRegisterForm,InventoryForm,PurchaseForm,UpatePasswordForm,UpdateUserForm
 from .models import Branch,Inventory,Purchase,CustomUser,Categories,Tables,Supplier
 from django.contrib.auth.forms import UserChangeForm,AuthenticationForm
-from django.contrib.auth import login,logout,authenticate,update_session_auth_hash
-from django.contrib.auth.models import User
+from django.contrib.auth import login,logout,authenticate,update_session_auth_hash,get_user_model
+# from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse
 from django.db.models import Sum,Count,Max
@@ -15,6 +15,8 @@ from staffside.models import Sales_details
 from django.db.models.functions import TruncHour,TruncDay,TruncMonth
 from django.utils.timezone import localtime
 from django.contrib.auth.decorators import login_required
+import random
+from django.core.mail import send_mail
 
 def home(request):
     return redirect('adminside:dashboard')
@@ -32,8 +34,8 @@ def dashboard(request):
     print(today,'-----------------------------')
     weekly=timezone.now() - timedelta(days=7)
     print(weekly,'-----------------------')
-    # monthly=timezone.now() - timedelta(days=30)
-    monthly = timezone.now().replace(day=1)
+    monthly=timezone.now() - timedelta(days=30)
+    # monthly = timezone.now().replace(day=1)
     print(monthly,'-----------------')
     sales_details=Sales_Report.objects.all()
     
@@ -295,7 +297,7 @@ def categories(request):
         ct=Categories(category_name=name,status=status)
         ct.save()
         return redirect('/adminside/categories/')
-    categories=Categories.objects.all()
+    categories=Categories.objects.all().order_by('id')
     context={
         "categories":categories
     }
@@ -603,3 +605,97 @@ def login_view(request):
 def logout_user(request):
     logout(request)
     return redirect('adminside:login')
+
+
+
+def password_reset(request):
+
+    return render(request,'adminside/password_reset.html')
+
+
+def send_otp(request):
+
+    if request.method == 'POST':
+        try:
+            email=request.POST.get('email')
+            otp=f'{random.randint(100000,999999)}'
+
+            user=CustomUser.objects.get(email=email)
+            
+            user.otp=otp
+            user.otp_created_at=timezone.now()
+            user.save()
+
+            
+            send_mail(
+                subject="Your OTP for password reset",
+                message=f"Hello {user.username}, Your OTP is {otp}, this otp will be expired in 2 minutes",
+                from_email='henil00008@gmail.com',
+                recipient_list=[email],
+            )
+            messages.success(request, "OTP has been sent to your email.")
+            return render(request,'adminside/verify_otp.html',{"email":email})
+        except CustomUser.DoesNotExist:
+            messages.error(request,'No user found with that email')
+            return redirect('adminside:password_reset')
+        
+    # return render(request,'password_reset.html')
+
+def verify_otp(request):  
+    if request.method == 'POST':
+        email=request.POST.get('email')
+        print(email,'((((((((((((((((((((((()))))))))))))))))))))))')
+        otp=request.POST.get('otp')
+        user=CustomUser.objects.get(email=email)
+
+        if not user.otp or not user.is_otp_valide():
+            user.otp=None
+            user.otp_created_at=None
+            user.save()
+            messages.error(request,'OTP Expired or invalid')
+
+        if user.otp == otp:
+            user.otp=None
+            user.otp_created_at=None
+            user.save()
+            return render(request,'adminside/password_reset_confirm.html',{"email":email})
+        
+        else:
+            messages.error(request,'Incorrect OTP')
+            return redirect('adminside:verify_otp')
+
+    return render(request,'adminside/verify_otp.html')
+
+
+def password_reset_cofirm(request):
+
+    if request.method == 'POST':
+       email=request.POST.get('email')
+       print(email,'--------------------------------')
+       new_password=request.POST.get('new_password')
+       print(new_password,'---------------------------')
+       confirm_password=request.POST.get('confirm_password')
+
+       if new_password != confirm_password:
+           messages.error(request,'Both Passwords do not match')
+           return redirect('adminside:password_reset_confirm')
+
+       if not email:
+            messages.error(request, "Missing email for reset")
+            return redirect('adminside:password_reset_confirm')
+
+       user=CustomUser.objects.get(email=email)
+       user.set_password(new_password)
+       user.otp=None
+       user.otp_created_at=None
+       user.save()
+       messages.success(request,'Password Reset Successfully')
+       return redirect('adminside:login')
+
+    return render(request,'adminside/password_reset_confirm.html')
+
+
+
+
+
+        
