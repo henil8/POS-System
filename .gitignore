@@ -1,0 +1,17 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Databases and Local settings
+db.sqlite3
+.env
+
+# Media and Static files
+staticfiles/
+media/

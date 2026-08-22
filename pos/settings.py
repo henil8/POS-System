@@ -12,21 +12,25 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load local .env file if it exists
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--%^d7cuk=6rdq60-@ooq76^j2p@+w-zk+%u(k()7wa9y5e$**y'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure--%^d7cuk=6rdq60-@ooq76^j2p@+w-zk+%u(k()7wa9y5e$**y')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', '.onrender.com', '.koyeb.app']
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://*.koyeb.app']
 
 TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
@@ -47,6 +51,7 @@ AUTH_USER_MODEL = 'adminside.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -70,7 +75,7 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,"adminside/templates"),os.path.join(BASE_DIR,"staffside/templates")],
+        'DIRS': [os.path.join(BASE_DIR,"adminside/templates"),os.path.join(BASE_DIR,"staffside/templates"),os.path.join(BASE_DIR,"chatbot/templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,20 +92,72 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pos.wsgi.application'
 
+import urllib.parse as urlparse
+
+# Use Redis if REDIS_URL is specified in env. Otherwise, fallback to LocMemCache in production, 
+# but keep local Redis config for debugging/development.
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {
+                    "protocol": 2,
+                },
+            }
+        }
+    }
+else:
+    if os.environ.get('DEBUG', 'True') == 'True':
+        CACHES = {
+            "default": {
+                "BACKEND": "django_redis.cache.RedisCache",
+                "LOCATION": "redis://127.0.0.1:6379/1",
+                "OPTIONS": {
+                    "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                    "CONNECTION_POOL_KWARGS": {
+                        "protocol": 2,
+                    },
+                }
+            }
+        }
+    else:
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            }
+        }
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'pos_system',
-        'USER':'postgres',
-        'PASSWORD':'henil&123',
-        'HOST':'127.0.0.1',
-        'PORT':'5432',
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    url = urlparse.urlparse(DATABASE_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path[1:],
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 5432,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'pos_system',
+            'USER':'postgres',
+            'PASSWORD':'henil&123',
+            'HOST':'127.0.0.1',
+            'PORT':'5432',
+        }
+    }
 
 
 # Password validation
@@ -140,6 +197,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'adminside/static/'),os.path.join(BASE_DIR, 'staffside/static/')]
 STATIC_ROOT = BASE_DIR / "staticfiles" 
+
+# Enable WhiteNoise compression and caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_MANIFEST_STRICT = False # Prevent deploy crashes if a static file reference is missing in your CSS/JS files
 
 MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'media')
