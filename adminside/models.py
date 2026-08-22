@@ -74,6 +74,44 @@ class Inventory(models.Model):
     def __str__(self):
       return self.food_item_name
 
+class Ingredients(models.Model):
+    name=models.CharField()
+
+class Ingredient_stock(models.Model):
+    choices=[
+        ('g', 'Grams'),
+        ('kg', 'Kilograms'),
+        ('ml', 'Milliliters'),
+        ('l', 'Liters'),
+        ('pcs', 'Pieces'),
+        ('tsp', 'Teaspoons'),
+        ('tbsp', 'Tablespoons'),
+    ]
+
+    name=models.CharField(max_length=50)
+    quantity=models.BigIntegerField()
+    unit=models.CharField(max_length=50,choices=choices)
+ 
+    def __str__(self):
+        return f'{self.name} ({self.unit})'
+
+
+
+class Food_item(models.Model):
+    choices=[
+        ('g', 'Grams'),
+        ('kg', 'Kilograms'),
+        ('ml', 'Milliliters'),
+        ('l', 'Liters'),
+        ('pcs', 'Pieces'),
+        ('tsp', 'Teaspoons'),
+        ('tbsp', 'Tablespoons'),
+    ]
+    main_food_item=models.CharField(max_length=30)
+    ingredient=models.ForeignKey(Ingredients,on_delete=models.CASCADE)
+    quantity=models.BigIntegerField()
+    unit=models.CharField(max_length=50,choices=choices)
+
 
 
 

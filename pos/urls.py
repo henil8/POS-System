@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("adminside/",include(("adminside.urls", 'adminside'), namespace='adminside')),
     path("staffside/",include("staffside.urls", 'staffside')),
+    path("chatbot/",include('chatbot.urls')),
     path('',login_view,name='login')
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 

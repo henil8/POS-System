@@ -17,6 +17,7 @@ from django.utils.timezone import localtime
 from django.contrib.auth.decorators import login_required
 import random
 from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
 
 def home(request):
     return redirect('adminside:dashboard')
@@ -570,6 +571,7 @@ def logout_view(request):
     ]
     return render_page(request, 'adminside/logout.html',data=sales_data)
 
+@csrf_exempt
 def login_view(request):
     form=AuthenticationForm()
     if request.method=='POST':
@@ -579,6 +581,7 @@ def login_view(request):
            username=form.cleaned_data.get('username')
            password=form.cleaned_data.get('password')
            user=authenticate(request,username=username,password=password)
+           print(user,'---------------------user')
            if user is not None:
             
 

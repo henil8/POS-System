@@ -135,7 +135,16 @@ else:
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
+USE_SQLITE = os.environ.get('USE_SQLITE', 'False') == 'True' or 'pythonanywhere' in os.environ.get('HOME', '').lower()
+
+if USE_SQLITE:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+elif DATABASE_URL:
     url = urlparse.urlparse(DATABASE_URL)
     DATABASES = {
         'default': {
